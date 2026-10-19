@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_hero %}
+{% block title %}About Us | {{ company.name }}{% endblock %}
+{% block content %}
+{{ page_hero("About us", 'Building technology for businesses <span class="grad">since ' ~ company.founded ~ '</span>', company.name ~ " began with basic IT services and has grown, step by step, into a full stack development and digital solutions company.") }}
+
+<section class="section">
+  <div class="wrap about-grid">
+    <div class="reveal">
+      <h2 class="h3">Our story</h2>
+      <p class="muted-2">{{ company.name }} was established in {{ company.founded }} with a simple goal: help businesses get the most out of technology. We started with computer hardware, repairs and networking, the foundations every office needs.</p>
+      <p class="muted-2">As technology evolved, so did we. We moved into websites and hosting, custom software, e-commerce and mobile apps, and today we deliver full stack engineering, cloud, cyber security, AI and automation.</p>
+      <p class="muted-2">Over {{ years }} years, one thing has not changed: we treat every client's business as our own.</p>
+    </div>
+    <div class="mv">
+      <div class="mv-card reveal"><i data-lucide="target"></i><h4>Our mission</h4><p>{{ mission }}</p></div>
+      <div class="mv-card reveal" style="--i:1"><i data-lucide="eye"></i><h4>Our vision</h4><p>{{ vision }}</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="wrap ceo">
+    <div class="ceo-avatar reveal"><span>{{ ceo.name.split()[0][0] }}{{ ceo.name.split()[-1][0] }}</span></div>
+    <div class="reveal" style="--i:1">
+      <p class="eyebrow">Leadership</p>
+      <h2 class="h3">{{ ceo.name }}</h2>
+      <p class="role">{{ ceo.role }}</p>
+      <p class="muted-2">{{ ceo.bio }}</p>
+      <a class="btn btn-ghost" href="{{ url_for('team') }}">Meet the team <i data-lucide="arrow-right"></i></a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <header class="sec-head reveal">
+      <p class="eyebrow">Our journey</p>
+      <h2>{{ company.founded }} to today: <span class="grad">growing with every era</span></h2>
+    </header>
+    <div class="timeline">
+      {% for j in journey %}
+      <article class="tl-item reveal" style="--i: {{ loop.index0 }}">
+        <div class="tl-year">{{ j.year }}{% if loop.last %}<small>Now</small>{% endif %}</div>
+        <div class="tl-dot" aria-hidden="true"></div>
+        <div class="tl-body">
+          <h3>{{ j.title }}</h3>
+          <p>{{ j.text }}</p>
+          <div class="tags">{% for t in j.tags %}<span>{{ t }}</span>{% endfor %}</div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="wrap">
+    <header class="sec-head reveal"><p class="eyebrow">Our values</p><h2>What we <span class="grad">stand for</span></h2></header>
+    <div class="why-cards four">
+      {% for v in values %}
+      <div class="why reveal" style="--i: {{ loop.index0 }}"><i data-lucide="{{ v.icon }}"></i><h4>{{ v.title }}</h4><p>{{ v.text }}</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

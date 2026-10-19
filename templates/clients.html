@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_hero %}
+{% block title %}Clients | {{ company.name }}{% endblock %}
+{% block content %}
+{{ page_hero("Clients", 'Businesses that <span class="grad">trust us</span>', "For " ~ years ~ " years we have supported businesses of every size across many industries.") }}
+
+{% if logos %}
+<section class="section">
+  <div class="wrap">
+    <header class="sec-head reveal"><p class="eyebrow">Our clients</p><h2>Proud to work <span class="grad">with</span></h2></header>
+    <div class="logo-grid">
+      {% for l in logos %}
+      <div class="logo-tile reveal" style="--i: {{ loop.index0 % 6 }}"><img src="{{ url_for('static', filename='img/clients/' + l.file) }}" alt="{{ l.name }}" loading="lazy"></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section{% if logos %} section-alt{% endif %}">
+  <div class="wrap">
+    <header class="sec-head reveal"><p class="eyebrow">Industries</p><h2>Who we <span class="grad">serve</span></h2></header>
+    <div class="why-cards three">
+      {% for i in industries %}
+      <div class="why reveal" style="--i: {{ loop.index0 % 3 }}"><i data-lucide="{{ i.icon }}"></i><h4>{{ i.title }}</h4><p>{{ i.text }}</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

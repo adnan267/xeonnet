@@ -44,8 +44,8 @@ document.querySelectorAll("[data-count]").forEach(el => {
   }).observe(el);
 });
 
-// Service tier filter
-const tabs = document.querySelectorAll(".tab");
+// Services page: tier filter
+const tabs = document.querySelectorAll(".tab[data-tier]");
 tabs.forEach(tab => tab.addEventListener("click", () => {
   tabs.forEach(t => t.classList.toggle("active", t === tab));
   const key = tab.dataset.tier;
@@ -54,7 +54,42 @@ tabs.forEach(tab => tab.addEventListener("click", () => {
   document.querySelectorAll(".tier:not(.hidden) .reveal").forEach(el => el.classList.add("in"));
 }));
 
-// AJAX forms (contact + subscribe) — page reload ke baghair submit
+// Portfolio page: category filter
+const cats = document.querySelectorAll(".tab[data-cat]");
+cats.forEach(tab => tab.addEventListener("click", () => {
+  cats.forEach(t => t.classList.toggle("active", t === tab));
+  const key = tab.dataset.cat;
+  document.querySelectorAll(".work").forEach(w => {
+    w.classList.toggle("hidden", key !== "all" && w.dataset.cat !== key);
+    if (!w.classList.contains("hidden")) w.classList.add("in");
+  });
+}));
+
+// Scroll progress bar + back-to-top
+const bar = document.getElementById("progress");
+const toTop = document.getElementById("toTop");
+const onScroll2 = () => {
+  const h = document.documentElement.scrollHeight - innerHeight;
+  if (bar) bar.style.width = (h > 0 ? (scrollY / h) * 100 : 0) + "%";
+  if (toTop) toTop.classList.toggle("show", scrollY > 600);
+};
+window.addEventListener("scroll", onScroll2, { passive: true });
+onScroll2();
+if (toTop) toTop.addEventListener("click", () => scrollTo({ top: 0, behavior: "smooth" }));
+
+// Subtle 3D tilt on cards (mouse devices only)
+if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+  document.querySelectorAll(".hero-card, .tier-card, .member").forEach(el => {
+    el.addEventListener("mousemove", e => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+      el.style.transform = `perspective(900px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) translateY(-4px)`;
+    });
+    el.addEventListener("mouseleave", () => { el.style.transform = ""; });
+  });
+}
+
+// AJAX forms (contact, reviews, newsletter): submit without page reload
 document.querySelectorAll("form[data-ajax]").forEach(form => {
   form.addEventListener("submit", async e => {
     e.preventDefault();
@@ -66,7 +101,7 @@ document.querySelectorAll("form[data-ajax]").forEach(form => {
     }
     btn.disabled = true;
     note.className = "form-note";
-    note.textContent = "Sending…";
+    note.textContent = "Sending...";
     try {
       const res = await fetch(form.action, {
         method: "POST",
@@ -80,11 +115,11 @@ document.querySelectorAll("form[data-ajax]").forEach(form => {
         form.reset();
       } else {
         note.classList.add("err");
-        note.textContent = (data.errors || ["Kuch ghalat ho gaya, dobara koshish karein."]).join(" ");
+        note.textContent = (data.errors || ["Something went wrong. Please try again."]).join(" ");
       }
     } catch {
       note.classList.add("err");
-      note.textContent = "Network error — internet check karein.";
+      note.textContent = "Network error. Please check your connection.";
     } finally {
       btn.disabled = false;
     }

@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}{{ company.name }} — {{ company.tagline }} | Since {{ company.founded }}{% endblock %}</title>
-  <meta name="description" content="{% block description %}{{ company.name }} — IT services since {{ company.founded }}. Hardware, networking aur hosting se le kar full stack development, mobile apps, AI aur cloud tak.{% endblock %}">
-  <meta property="og:title" content="{{ company.name }} — Since {{ company.founded }}">
+  <title>{% block title %}{{ company.name }} | {{ company.tagline }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ company.name }}: IT services since {{ company.founded }}. From hardware, networking and hosting to full stack development, mobile apps, cloud and AI.{% endblock %}">
+  <meta property="og:title" content="{{ company.name }}: IT services since {{ company.founded }}">
   <meta property="og:description" content="{{ company.tagline }}">
   <meta property="og:image" content="{{ url_for('static', filename='img/logo-full.jpg', _external=True) }}">
   <meta name="theme-color" content="#0a0a0a">
@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="{% block body_class %}{% endblock %}">
+<div class="progress" id="progress"></div>
 
 <header class="nav" id="nav">
   <div class="wrap nav-inner">
@@ -23,14 +24,13 @@
       <img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="" width="46" height="29">
       <span class="brand-text">XEON <em>NET</em></span>
     </a>
-    <nav class="nav-links" id="navLinks">
-      <a href="{{ url_for('home') }}#journey">Journey</a>
-      <a href="{{ url_for('home') }}#services">Services</a>
-      <a href="{{ url_for('home') }}#why">Why Us</a>
-      <a href="{{ url_for('home') }}#process">Process</a>
-      <a href="{{ url_for('home') }}#contact" class="btn btn-sm">Get a Quote</a>
+    <nav class="nav-links" id="navLinks" aria-label="Main">
+      {% for ep, label in nav %}
+      <a href="{{ url_for(ep) }}" class="{{ 'active' if request.endpoint == ep or (ep == 'services' and request.endpoint == 'service_detail') }}">{{ label }}</a>
+      {% endfor %}
+      <a href="{{ url_for('contact_page') }}" class="btn btn-sm nav-cta">Get a Quote</a>
     </nav>
-    <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -46,32 +46,44 @@
 
 <main>{% block content %}{% endblock %}</main>
 
+<section class="cta-band">
+  <div class="wrap cta-inner">
+    <div>
+      <h2>Ready to build something great?</h2>
+      <p>Tell us about your project and get a free consultation.</p>
+    </div>
+    <div class="cta-actions">
+      <a href="{{ url_for('contact_page') }}" class="btn btn-dark">Start a Project <i data-lucide="arrow-right"></i></a>
+      <a href="tel:{{ company.phone_raw }}" class="btn btn-outline-dark"><i data-lucide="phone"></i> {{ company.phone }}</a>
+    </div>
+  </div>
+</section>
+
 <footer class="footer">
   <div class="wrap footer-grid">
     <div>
-      <img src="{{ url_for('static', filename='img/logo-full.png') }}" alt="{{ company.name }}" class="footer-logo" width="220" height="157">
-      <p class="muted">IT services since {{ company.founded }} — basic se advance tak, ek hi bharosemand naam.</p>
+      <img src="{{ url_for('static', filename='img/logo-full.png') }}" alt="{{ company.name }}" class="footer-logo" width="200" height="143">
+      <p class="muted">IT services since {{ company.founded }}. From the basics to advanced technology, one trusted name.</p>
     </div>
     <div>
-      <h4>Services</h4>
+      <h4>Company</h4>
       <ul>
-        {% for t in tiers %}{% for s in t.services[:2] %}
-        <li><a href="{{ url_for('service_detail', slug=s.slug) }}">{{ s.title }}</a></li>
-        {% endfor %}{% endfor %}
+        {% for ep, label in nav %}<li><a href="{{ url_for(ep) }}">{{ label }}</a></li>{% endfor %}
       </ul>
     </div>
     <div>
       <h4>Contact</h4>
       <ul>
         <li><a href="mailto:{{ company.email }}">{{ company.email }}</a></li>
-        <li><a href="tel:{{ company.phone|replace(' ', '') }}">{{ company.phone }}</a></li>
+        <li><a href="tel:{{ company.phone_raw }}">{{ company.phone }}</a></li>
+        <li><a href="https://wa.me/{{ company.whatsapp }}" target="_blank" rel="noopener">WhatsApp: {{ company.phone }}</a></li>
         <li class="muted">{{ company.address }}</li>
         <li class="muted">{{ company.hours }}</li>
       </ul>
     </div>
     <div>
-      <h4>Updates</h4>
-      <p class="muted">Nayi services aur offers ki khabar email par.</p>
+      <h4>Stay updated</h4>
+      <p class="muted">News about new services and offers, straight to your inbox.</p>
       <form class="subscribe" data-ajax action="{{ url_for('subscribe') }}" method="post">
         <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
         <input type="email" name="email" placeholder="Your email" required aria-label="Email">
@@ -81,14 +93,15 @@
     </div>
   </div>
   <div class="wrap footer-bottom">
-    <span>© {{ now.year }} {{ company.name }} · Est. {{ company.founded }}</span>
+    <span>© {{ now.year }} {{ company.name }} · CEO: {{ company.ceo }} · Est. {{ company.founded }}</span>
     <span>{{ company.domain }}</span>
   </div>
 </footer>
 
-<a class="wa-float" href="https://wa.me/{{ company.whatsapp }}" target="_blank" rel="noopener" aria-label="WhatsApp">
+<a class="wa-float" href="https://wa.me/{{ company.whatsapp }}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
   <i data-lucide="message-circle"></i>
 </a>
+<button class="to-top" id="toTop" aria-label="Back to top"><i data-lucide="arrow-up"></i></button>
 
 <script src="{{ url_for('static', filename='js/lucide.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>

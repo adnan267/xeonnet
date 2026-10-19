@@ -3,6 +3,9 @@
 Python (Flask) website — frontend + backend.
 IT services since 2007: basic (hardware, networking, hosting) se advance (full stack, apps, cloud, AI) tak.
 
+## Pages
+Home · About · Services (+ one page per service) · Portfolio · Clients · Team · Reviews · Contact · Admin (`/admin`)
+
 ## Features
 - Home page: hero ("Since 2007"), journey timeline 2007 → aaj, services 3 levels mein (Foundation → Growth → Advanced), Why Us, Process, Contact
 - Har service ka apna detail page: `/services/<slug>`
@@ -11,9 +14,13 @@ IT services since 2007: basic (hardware, networking, hosting) se advance (full s
 - JSON API: `/api/services`, health check: `/health`
 - Mobile responsive, WhatsApp button, SEO meta tags, CSRF + honeypot spam protection
 
-## Content edit karna
-Saara text **`data.py`** mein hai — company info (email, phone, WhatsApp, address), timeline, services.
-`TODO` wali lines mein apni asli details daalein.
+## Editing content
+All text lives in **`data.py`**: company info, services, portfolio, clients, team.
+Lines marked `TODO` are placeholders to replace with your real details.
+- **Portfolio:** edit `PORTFOLIO`; add screenshots to `static/img/portfolio/`
+- **Clients:** drop logo files into `static/img/clients/` and they appear automatically
+- **Team:** edit `TEAM`; optional photos in `static/img/team/`
+- **Reviews:** visitors submit them on /reviews; you approve them in /admin before they go public
 
 ## Local par chalana
 ```bash

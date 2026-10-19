@@ -1,31 +1,31 @@
 {% extends "base.html" %}
-{% block title %}{{ service.title }} — {{ company.name }}{% endblock %}
+{% block title %}{{ service.title }} | {{ company.name }}{% endblock %}
 {% block description %}{{ service.short }} {{ company.name }}, IT services since {{ company.founded }}.{% endblock %}
 {% block content %}
 <section class="page-hero">
+  <div class="hero-bg" aria-hidden="true"><span class="stripe s1"></span><span class="stripe s2"></span><span class="stripe s3"></span></div>
   <div class="wrap">
-    <a href="{{ url_for('home') }}#services" class="back"><i data-lucide="arrow-left"></i> All services</a>
-    <p class="eyebrow">Level {{ tier.level }} · {{ tier.name }}</p>
-    <h1><span class="card-icon lg"><i data-lucide="{{ service.icon }}"></i></span>{{ service.title }}</h1>
-    <p class="lead">{{ service.short }}</p>
+    <a href="{{ url_for('services') }}" class="back anim-up"><i data-lucide="arrow-left"></i> All services</a>
+    <p class="eyebrow anim-up d1">Level {{ tier.level }} · {{ tier.name }}</p>
+    <h1 class="anim-up d2"><span class="card-icon lg"><i data-lucide="{{ service.icon }}"></i></span>{{ service.title }}</h1>
+    <p class="lead anim-up d3">{{ service.short }}</p>
   </div>
 </section>
-
 <section class="section">
   <div class="wrap detail-grid">
     <div>
-      <h2 class="h3">Is service mein kya shamil hai</h2>
+      <h2 class="h3 reveal">What's included</h2>
       <ul class="checks">
-        {% for p in service.points %}<li><i data-lucide="check"></i>{{ p }}</li>{% endfor %}
+        {% for p in service.points %}<li class="reveal" style="--i: {{ loop.index0 }}"><i data-lucide="check"></i>{{ p }}</li>{% endfor %}
       </ul>
-      <p class="muted">{{ years }}+ saal ke tajurbe ke saath, {{ company.name }} har project ko planning se le kar launch aur support tak sambhalta hai.</p>
-      <a class="btn" href="{{ url_for('home', service=service.slug) }}#contact">Get a quote <i data-lucide="arrow-right"></i></a>
+      <p class="muted reveal">With {{ years }}+ years of experience, {{ company.name }} handles every project from planning to launch and ongoing support.</p>
+      <a class="btn reveal" href="{{ url_for('contact_page', service=service.slug) }}">Get a quote <i data-lucide="arrow-right"></i></a>
     </div>
     {% if related %}
     <aside class="related">
-      <h3 class="h4">Same level ki aur services</h3>
+      <h3 class="h4">More at this level</h3>
       {% for r in related %}
-      <a class="card mini" href="{{ url_for('service_detail', slug=r.slug) }}">
+      <a class="card mini reveal" style="--i: {{ loop.index0 }}" href="{{ url_for('service_detail', slug=r.slug) }}">
         <span class="card-icon"><i data-lucide="{{ r.icon }}"></i></span>
         <div><h4>{{ r.title }}</h4><p>{{ r.short }}</p></div>
       </a>

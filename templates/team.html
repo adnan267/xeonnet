@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_hero %}
+{% block title %}Team | {{ company.name }}{% endblock %}
+{% block content %}
+{{ page_hero("Our team", 'The people behind <span class="grad">Xeon Net</span>', "Experienced engineers, designers and support specialists, led by our CEO.") }}
+<section class="section">
+  <div class="wrap">
+    <div class="team-grid">
+      {% for m in members %}
+      <article class="member reveal" style="--i: {{ loop.index0 }}">
+        <div class="member-photo">
+          {% if m.photo %}<img src="{{ url_for('static', filename='img/team/' + m.photo) }}" alt="{{ m.name }}" loading="lazy">
+          {% else %}<span>{{ m.name.split()[0][0] }}{{ m.name.split()[-1][0] }}</span>{% endif %}
+        </div>
+        <h3>{{ m.name }}</h3>
+        <p class="role">{{ m.role }}</p>
+        <p class="muted">{{ m.bio }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<section class="section section-alt">
+  <div class="wrap">
+    <header class="sec-head reveal"><p class="eyebrow">Departments</p><h2>Skills under <span class="grad">one roof</span></h2></header>
+    <div class="why-cards four">
+      {% for d in departments %}
+      <div class="why reveal" style="--i: {{ loop.index0 }}"><i data-lucide="{{ d.icon }}"></i><h4>{{ d.title }}</h4><p>{{ d.text }}</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

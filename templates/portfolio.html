@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_hero, work_card %}
+{% block title %}Portfolio | {{ company.name }}{% endblock %}
+{% block content %}
+{{ page_hero("Portfolio", 'Our <span class="grad">work</span>', "A selection of the websites, apps, software and campaigns we build for our clients.") }}
+<section class="section">
+  <div class="wrap">
+    <div class="tier-tabs" id="workFilter">
+      <button class="tab active" data-cat="all">All</button>
+      {% for c in categories %}<button class="tab" data-cat="{{ c }}">{{ c }}</button>{% endfor %}
+    </div>
+    <div class="work-grid" id="workGrid">
+      {% for p in items %}{{ work_card(p, loop.index0 % 3) }}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

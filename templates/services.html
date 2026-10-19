@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_hero, service_cards %}
+{% block title %}Services | {{ company.name }}{% endblock %}
+{% block content %}
+{{ page_hero("Services", 'Basic to <span class="grad">advanced</span>, everything IT', "Our " ~ service_count ~ " services come in three levels. Pick one, or combine them into a complete solution.") }}
+
+<section class="section">
+  <div class="wrap">
+    <div class="tier-tabs" role="tablist">
+      <button class="tab active" data-tier="all" role="tab">All</button>
+      {% for t in tiers %}<button class="tab" data-tier="{{ t.key }}" role="tab"><span>{{ t.level }}</span> {{ t.name }}</button>{% endfor %}
+    </div>
+    {% for t in tiers %}
+    <div class="tier" id="{{ t.key }}" data-tier="{{ t.key }}">
+      <div class="tier-head reveal">
+        <span class="tier-level">Level {{ t.level }}</span>
+        <h3>{{ t.name }}</h3>
+        <p class="muted">{{ t.intro }}</p>
+        <div class="meter" aria-hidden="true"><i style="width: {{ (loop.index / loop.length * 100)|int }}%"></i></div>
+      </div>
+      {{ service_cards(t) }}
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

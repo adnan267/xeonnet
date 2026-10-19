@@ -1,0 +1,41 @@
+{% macro page_hero(eyebrow, title, lead="") %}
+<section class="page-hero">
+  <div class="hero-bg" aria-hidden="true"><span class="stripe s1"></span><span class="stripe s2"></span><span class="stripe s3"></span></div>
+  <div class="wrap">
+    <p class="eyebrow anim-up"><span class="dot"></span> {{ eyebrow }}</p>
+    <h1 class="anim-up d1">{{ title|safe }}</h1>
+    {% if lead %}<p class="lead anim-up d2">{{ lead }}</p>{% endif %}
+  </div>
+</section>
+{% endmacro %}
+
+{% macro stars(n) %}<span class="stars" aria-label="{{ n }} out of 5">{% for i in range(5) %}<i data-lucide="star" class="{{ 'on' if i < n }}"></i>{% endfor %}</span>{% endmacro %}
+
+{% macro service_cards(tier) %}
+<div class="cards">
+  {% for s in tier.services %}
+  <a class="card reveal" style="--i: {{ loop.index0 }}" href="{{ url_for('service_detail', slug=s.slug) }}">
+    <span class="card-icon"><i data-lucide="{{ s.icon }}"></i></span>
+    <h4>{{ s.title }}</h4>
+    <p>{{ s.short }}</p>
+    <span class="card-more">Details <i data-lucide="arrow-up-right"></i></span>
+  </a>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{% macro work_card(p, i=0) %}
+<article class="work reveal" style="--i: {{ i }}" data-cat="{{ p.category }}">
+  <div class="work-img">
+    {% if p.image %}<img src="{{ url_for('static', filename='img/portfolio/' + p.image) }}" alt="{{ p.title }}" loading="lazy">
+    {% else %}<div class="work-ph"><img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="" width="90"></div>{% endif %}
+    <span class="work-cat">{{ p.category }}</span>
+  </div>
+  <div class="work-body">
+    <h4>{{ p.title }}</h4>
+    <p>{{ p.text }}</p>
+    <div class="tags">{% for t in p.tags %}<span>{{ t }}</span>{% endfor %}</div>
+    {% if p.url %}<a class="card-more" href="{{ p.url }}" target="_blank" rel="noopener">Visit project <i data-lucide="arrow-up-right"></i></a>{% endif %}
+  </div>
+</article>
+{% endmacro %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_hero, stars %}
+{% block title %}Reviews | {{ company.name }}{% endblock %}
+{% block content %}
+{{ page_hero("Reviews", 'What our <span class="grad">clients say</span>', "Honest feedback from the people we work with. Worked with us? Share your experience below.") }}
+<section class="section">
+  <div class="wrap">
+    {% if avg %}
+    <div class="rating-summary reveal"><b>{{ avg }}</b><div>{{ stars(avg|round|int) }}<span>{{ reviews|length }} review{{ 's' if reviews|length != 1 }}</span></div></div>
+    {% endif %}
+    {% if reviews %}
+    <div class="review-grid">
+      {% for r in reviews %}
+      <figure class="review reveal" style="--i: {{ loop.index0 % 3 }}">
+        {{ stars(r.rating) }}
+        <blockquote>{{ r.text }}</blockquote>
+        <figcaption><b>{{ r.name }}</b>{% if r.role %}<span>{{ r.role }}</span>{% endif %}</figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty reveal muted">No reviews yet. Be the first to share your experience!</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section section-alt" id="write">
+  <div class="wrap narrow">
+    <header class="sec-head reveal"><p class="eyebrow">Share your experience</p><h2>Write a <span class="grad">review</span></h2>
+      <p class="muted">Reviews are published after our team approves them.</p></header>
+    <form class="contact-form reveal" data-ajax action="{{ url_for('review_submit') }}" method="post" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="row">
+        <label>Your name<input name="name" required minlength="2" maxlength="80"></label>
+        <label>Company / role (optional)<input name="role" maxlength="100"></label>
+      </div>
+      <fieldset class="rate">
+        <legend>Your rating</legend>
+        <div class="rate-stars">{% for i in range(5, 0, -1) %}<input type="radio" name="rating" id="r{{ i }}" value="{{ i }}" required><label for="r{{ i }}" title="{{ i }} stars"><i data-lucide="star"></i></label>{% endfor %}</div>
+      </fieldset>
+      <label>Your review<textarea name="text" rows="5" required minlength="15" maxlength="1200"></textarea></label>
+      <button class="btn btn-block" type="submit">Submit review <i data-lucide="send"></i></button>
+      <p class="form-note" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+{% endblock %}

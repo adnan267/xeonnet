@@ -16,6 +16,7 @@
   <div class="admin-stats">
     <div><b>{{ stats.total }}</b><span>Total messages</span></div>
     <div><b>{{ stats.unread }}</b><span>Unread</span></div>
+    <div><b>{{ stats.pending_reviews }}</b><span>Reviews to approve</span></div>
     <div><b>{{ stats.subscribers }}</b><span>Subscribers</span></div>
   </div>
 
@@ -27,7 +28,7 @@
     </div>
   </div>
 
-  {% if not msgs %}<p class="muted empty">Abhi koi message nahi.</p>{% endif %}
+  {% if not msgs %}<p class="muted empty">No messages yet.</p>{% endif %}
   <div class="msg-list">
   {% for m in msgs %}
     <article class="msg {{ 'unread' if not m.is_read }}">
@@ -41,6 +42,22 @@
         <form method="post" action="{{ url_for('admin_toggle', mid=m.id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="link">{{ 'Mark unread' if m.is_read else 'Mark read' }}</button></form>
         <a class="link" href="mailto:{{ m.email }}?subject=Re: Your inquiry — {{ company.name }}">Reply</a>
         <form method="post" action="{{ url_for('admin_delete', mid=m.id) }}" onsubmit="return confirm('Delete this message?')"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="link danger">Delete</button></form>
+      </footer>
+    </article>
+  {% endfor %}
+  </div>
+
+  <h2 class="h4" id="reviews" style="margin-top:48px">Reviews</h2>
+  {% if not revs %}<p class="muted empty">No reviews submitted yet.</p>{% endif %}
+  <div class="msg-list">
+  {% for r in revs %}
+    <article class="msg {{ 'unread' if not r.approved }}">
+      <header><div><strong>{{ r.name }}</strong>{% if r.role %} · {{ r.role }}{% endif %} · {{ '★' * r.rating }}{{ '☆' * (5 - r.rating) }}</div><time>{{ r.created_at.replace('T', ' ') }}</time></header>
+      <p>{{ r.text }}</p>
+      <footer>
+        <span class="muted small">{{ 'Published' if r.approved else 'Waiting for approval' }}</span>
+        <form method="post" action="{{ url_for('admin_review', rid=r.id, action='hide' if r.approved else 'approve') }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="link">{{ 'Unpublish' if r.approved else 'Approve & publish' }}</button></form>
+        <form method="post" action="{{ url_for('admin_review', rid=r.id, action='delete') }}" onsubmit="return confirm('Delete this review?')"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="link danger">Delete</button></form>
       </footer>
     </article>
   {% endfor %}

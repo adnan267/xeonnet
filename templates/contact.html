@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_hero %}
+{% block title %}Contact | {{ company.name }}{% endblock %}
+{% block content %}
+{{ page_hero("Contact", 'Let\'s start your <span class="grad">project</span>', "Fill in the form or call and message us directly. We reply quickly.") }}
+<section class="section">
+  <div class="wrap contact-grid">
+    <div class="contact-info reveal">
+      <h2 class="h3">Get in touch</h2>
+      <ul class="contact-list">
+        <li><i data-lucide="phone"></i><a href="tel:{{ company.phone_raw }}">{{ company.phone }}</a></li>
+        <li><i data-lucide="message-circle"></i><a href="https://wa.me/{{ company.whatsapp }}" target="_blank" rel="noopener">WhatsApp: {{ company.phone }}</a></li>
+        <li><i data-lucide="mail"></i><a href="mailto:{{ company.email }}">{{ company.email }}</a></li>
+        <li><i data-lucide="map-pin"></i><span>{{ company.address }}</span></li>
+        <li><i data-lucide="clock"></i><span>{{ company.hours }}</span></li>
+        <li><i data-lucide="user"></i><span>CEO: {{ company.ceo }}</span></li>
+      </ul>
+      <a class="btn wa-btn" href="https://wa.me/{{ company.whatsapp }}?text=Hello%20Xeon%20Net%2C%20I%27d%20like%20to%20discuss%20a%20project." target="_blank" rel="noopener"><i data-lucide="message-circle"></i> Chat on WhatsApp</a>
+    </div>
+
+    <form class="contact-form reveal" style="--i:1" data-ajax action="{{ url_for('contact') }}" method="post" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="row">
+        <label>Name<input name="name" required minlength="2" maxlength="120" autocomplete="name"></label>
+        <label>Email<input name="email" type="email" required maxlength="160" autocomplete="email"></label>
+      </div>
+      <div class="row">
+        <label>Phone / WhatsApp<input name="phone" maxlength="40" autocomplete="tel"></label>
+        <label>Service
+          <select name="service">
+            <option value="">Select a service</option>
+            {% for t in tiers %}<optgroup label="{{ t.name }}">
+              {% for s in t.services %}<option{% if request.args.get('service') == s.slug %} selected{% endif %}>{{ s.title }}</option>{% endfor %}
+            </optgroup>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <label>Budget (optional)
+        <select name="budget">
+          <option value="">Not sure yet</option>
+          <option>Under PKR 50,000</option>
+          <option>PKR 50,000 – 200,000</option>
+          <option>PKR 200,000 – 500,000</option>
+          <option>PKR 500,000+</option>
+        </select>
+      </label>
+      <label>Message<textarea name="message" rows="5" required minlength="10" maxlength="4000" placeholder="Tell us about your project..."></textarea></label>
+      <button class="btn btn-block" type="submit">Send message <i data-lucide="send"></i></button>
+      <p class="form-note" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+{% endblock %}

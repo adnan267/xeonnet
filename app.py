@@ -18,7 +18,7 @@ import data
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Vercel / serverless par project folder read-only hota hai — sirf /tmp writable hai.
+# On Vercel / serverless the project folder is read-only; only /tmp is writable.
 if os.environ.get("DATABASE_PATH"):
     DB_PATH = os.environ["DATABASE_PATH"]
 elif os.environ.get("VERCEL"):
@@ -36,7 +36,7 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Lax",
 )
 
-# Admin login — production mein environment variables se set karein
+# Admin login: set these as environment variables in production
 ADMIN_USER = os.environ.get("ADMIN_USER", "admin")
 ADMIN_PASSWORD_HASH = generate_password_hash(os.environ.get("ADMIN_PASSWORD", "xeonnet@2007"))
 
@@ -73,6 +73,15 @@ def init_db():
             is_read    INTEGER NOT NULL DEFAULT 0,
             created_at TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS reviews (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            name       TEXT NOT NULL,
+            role       TEXT,
+            rating     INTEGER NOT NULL,
+            text       TEXT NOT NULL,
+            approved   INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL
+        );
         CREATE TABLE IF NOT EXISTS subscribers (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
             email      TEXT NOT NULL UNIQUE,
@@ -96,7 +105,7 @@ def csrf_token():
 def check_csrf():
     token = request.form.get("_csrf", "")
     if not token or not secrets.compare_digest(token, session.get("_csrf", "")):
-        abort(400, "Invalid form token. Page refresh karke dobara koshish karein.")
+        abort(400, "Invalid form token. Please refresh the page and try again.")
 
 
 def login_required(view):
@@ -114,6 +123,7 @@ def inject_globals():
         "company": data.COMPANY,
         "years": data.YEARS,
         "tiers": data.SERVICE_TIERS,
+        "nav": data.NAV,
         "service_count": data.SERVICE_COUNT,
         "csrf_token": csrf_token,
         "now": datetime.now(),
@@ -123,8 +133,22 @@ def inject_globals():
 # ---------------------------------------------------------------- public pages
 @app.route("/")
 def home():
+    db = get_db()
+    reviews = db.execute("SELECT * FROM reviews WHERE approved=1 ORDER BY id DESC LIMIT 3").fetchall()
     return render_template("index.html", journey=data.JOURNEY, why=data.WHY_US,
-                           process=data.PROCESS)
+                           process=data.PROCESS, tech=data.TECH, reviews=reviews,
+                           portfolio=data.PORTFOLIO[:3])
+
+
+@app.route("/about")
+def about():
+    return render_template("about.html", journey=data.JOURNEY, values=data.VALUES,
+                           mission=data.MISSION, vision=data.VISION, ceo=data.TEAM[0])
+
+
+@app.route("/services")
+def services():
+    return render_template("services.html")
 
 
 @app.route("/services/<slug>")
@@ -136,13 +160,72 @@ def service_detail(slug):
     return render_template("service.html", tier=tier, service=service, related=related)
 
 
-@app.route("/contact", methods=["POST"])
+@app.route("/portfolio")
+def portfolio():
+    return render_template("portfolio.html", items=data.PORTFOLIO,
+                           categories=data.PORTFOLIO_CATEGORIES)
+
+
+@app.route("/clients")
+def clients():
+    return render_template("clients.html", logos=data.client_logos(),
+                           industries=data.CLIENT_INDUSTRIES)
+
+
+@app.route("/team")
+def team():
+    return render_template("team.html", members=data.TEAM, departments=data.DEPARTMENTS)
+
+
+@app.route("/reviews")
+def reviews():
+    db = get_db()
+    rows = db.execute("SELECT * FROM reviews WHERE approved=1 ORDER BY id DESC").fetchall()
+    avg = db.execute("SELECT AVG(rating) FROM reviews WHERE approved=1").fetchone()[0]
+    return render_template("reviews.html", reviews=rows, avg=round(avg, 1) if avg else None)
+
+
+@app.route("/reviews/submit", methods=["POST"])
+def review_submit():
+    check_csrf()
+    f = request.form
+    if f.get("website"):  # honeypot
+        return jsonify(ok=True, message="Thank you!")
+    name = f.get("name", "").strip()[:80]
+    role = f.get("role", "").strip()[:100]
+    text = f.get("text", "").strip()[:1200]
+    try:
+        rating = int(f.get("rating", "0"))
+    except ValueError:
+        rating = 0
+    errors = []
+    if len(name) < 2:
+        errors.append("Please enter your name.")
+    if not 1 <= rating <= 5:
+        errors.append("Please choose a star rating.")
+    if len(text) < 15:
+        errors.append("Please write at least 15 characters.")
+    if errors:
+        return jsonify(ok=False, errors=errors), 422
+    db = get_db()
+    db.execute("INSERT INTO reviews (name, role, rating, text, created_at) VALUES (?,?,?,?,?)",
+               (name, role, rating, text, datetime.now().isoformat(timespec="seconds")))
+    db.commit()
+    return jsonify(ok=True, message="Thank you! Your review will appear after our team approves it.")
+
+
+@app.route("/contact", methods=["GET"])
+def contact_page():
+    return render_template("contact.html")
+
+
+@app.route("/contact/send", methods=["POST"])
 def contact():
     check_csrf()
     f = request.form
-    # Honeypot: bots yeh hidden field bhar dete hain
+    # Honeypot: bots fill this hidden field
     if f.get("website"):
-        return redirect(url_for("home") + "#contact")
+        return redirect(url_for("contact_page"))
 
     name = f.get("name", "").strip()[:120]
     email = f.get("email", "").strip()[:160]
@@ -153,11 +236,11 @@ def contact():
 
     errors = []
     if len(name) < 2:
-        errors.append("Apna naam likhein.")
+        errors.append("Please enter your name.")
     if not EMAIL_RE.match(email):
-        errors.append("Sahi email address likhein.")
+        errors.append("Please enter a valid email address.")
     if len(message) < 10:
-        errors.append("Message kam az kam 10 characters ka ho.")
+        errors.append("Your message must be at least 10 characters.")
 
     wants_json = request.headers.get("X-Requested-With") == "fetch"
     if errors:
@@ -165,7 +248,7 @@ def contact():
             return jsonify(ok=False, errors=errors), 422
         for e in errors:
             flash(e, "error")
-        return redirect(url_for("home") + "#contact")
+        return redirect(url_for("contact_page"))
 
     db = get_db()
     db.execute(
@@ -177,11 +260,11 @@ def contact():
     )
     db.commit()
 
-    ok_msg = f"Shukriya {name}! Aapka message mil gaya hai — hum jald rabta karenge."
+    ok_msg = f"Thank you, {name}! We have received your message and will contact you soon."
     if wants_json:
         return jsonify(ok=True, message=ok_msg)
     flash(ok_msg, "success")
-    return redirect(url_for("home") + "#contact")
+    return redirect(url_for("contact_page"))
 
 
 @app.route("/subscribe", methods=["POST"])
@@ -189,12 +272,12 @@ def subscribe():
     check_csrf()
     email = request.form.get("email", "").strip()[:160]
     if not EMAIL_RE.match(email):
-        return jsonify(ok=False, errors=["Sahi email likhein."]), 422
+        return jsonify(ok=False, errors=["Please enter a valid email address."]), 422
     db = get_db()
     db.execute("INSERT OR IGNORE INTO subscribers (email, created_at) VALUES (?, ?)",
                (email, datetime.now().isoformat(timespec="seconds")))
     db.commit()
-    return jsonify(ok=True, message="Subscribe ho gaya — shukriya!")
+    return jsonify(ok=True, message="You are subscribed. Thank you!")
 
 
 # ---------------------------------------------------------------- JSON API
@@ -223,7 +306,7 @@ def admin_login():
             session["admin"] = True
             nxt = request.args.get("next", "")
             return redirect(nxt if nxt.startswith("/admin") else url_for("admin_dashboard"))
-        flash("Username ya password ghalat hai.", "error")
+        flash("Incorrect username or password.", "error")
     return render_template("admin/login.html")
 
 
@@ -248,7 +331,10 @@ def admin_dashboard():
         "subscribers": db.execute("SELECT COUNT(*) FROM subscribers").fetchone()[0],
     }
     subs = db.execute("SELECT * FROM subscribers ORDER BY id DESC LIMIT 50").fetchall()
-    return render_template("admin/dashboard.html", msgs=msgs, stats=stats, subs=subs, show=show)
+    revs = db.execute("SELECT * FROM reviews ORDER BY approved ASC, id DESC").fetchall()
+    stats["pending_reviews"] = db.execute("SELECT COUNT(*) FROM reviews WHERE approved=0").fetchone()[0]
+    return render_template("admin/dashboard.html", msgs=msgs, stats=stats, subs=subs,
+                           revs=revs, show=show)
 
 
 @app.route("/admin/message/<int:mid>/toggle", methods=["POST"])
@@ -268,8 +354,25 @@ def admin_delete(mid):
     db = get_db()
     db.execute("DELETE FROM messages WHERE id = ?", (mid,))
     db.commit()
-    flash("Message delete ho gaya.", "success")
+    flash("Message deleted.", "success")
     return redirect(url_for("admin_dashboard"))
+
+
+@app.route("/admin/review/<int:rid>/<action>", methods=["POST"])
+@login_required
+def admin_review(rid, action):
+    check_csrf()
+    db = get_db()
+    if action == "approve":
+        db.execute("UPDATE reviews SET approved=1 WHERE id=?", (rid,))
+    elif action == "hide":
+        db.execute("UPDATE reviews SET approved=0 WHERE id=?", (rid,))
+    elif action == "delete":
+        db.execute("DELETE FROM reviews WHERE id=?", (rid,))
+    else:
+        abort(404)
+    db.commit()
+    return redirect(url_for("admin_dashboard") + "#reviews")
 
 
 # ---------------------------------------------------------------- errors
