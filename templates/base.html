@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ company.name }} — {{ company.tagline }} | Since {{ company.founded }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ company.name }} — IT services since {{ company.founded }}. Hardware, networking aur hosting se le kar full stack development, mobile apps, AI aur cloud tak.{% endblock %}">
+  <meta property="og:title" content="{{ company.name }} — Since {{ company.founded }}">
+  <meta property="og:description" content="{{ company.tagline }}">
+  <meta property="og:image" content="{{ url_for('static', filename='img/logo-full.jpg', _external=True) }}">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a href="{{ url_for('home') }}" class="brand" aria-label="{{ company.name }} home">
+      <img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="" width="46" height="29">
+      <span class="brand-text">XEON <em>NET</em></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="{{ url_for('home') }}#journey">Journey</a>
+      <a href="{{ url_for('home') }}#services">Services</a>
+      <a href="{{ url_for('home') }}#why">Why Us</a>
+      <a href="{{ url_for('home') }}#process">Process</a>
+      <a href="{{ url_for('home') }}#contact" class="btn btn-sm">Get a Quote</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+{% with msgs = get_flashed_messages(with_categories=true) %}
+  {% if msgs %}
+  <div class="toasts">
+    {% for cat, m in msgs %}<div class="toast toast-{{ cat }}">{{ m }}</div>{% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer class="footer">
+  <div class="wrap footer-grid">
+    <div>
+      <img src="{{ url_for('static', filename='img/logo-full.png') }}" alt="{{ company.name }}" class="footer-logo" width="220" height="157">
+      <p class="muted">IT services since {{ company.founded }} — basic se advance tak, ek hi bharosemand naam.</p>
+    </div>
+    <div>
+      <h4>Services</h4>
+      <ul>
+        {% for t in tiers %}{% for s in t.services[:2] %}
+        <li><a href="{{ url_for('service_detail', slug=s.slug) }}">{{ s.title }}</a></li>
+        {% endfor %}{% endfor %}
+      </ul>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="mailto:{{ company.email }}">{{ company.email }}</a></li>
+        <li><a href="tel:{{ company.phone|replace(' ', '') }}">{{ company.phone }}</a></li>
+        <li class="muted">{{ company.address }}</li>
+        <li class="muted">{{ company.hours }}</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Updates</h4>
+      <p class="muted">Nayi services aur offers ki khabar email par.</p>
+      <form class="subscribe" data-ajax action="{{ url_for('subscribe') }}" method="post">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <input type="email" name="email" placeholder="Your email" required aria-label="Email">
+        <button class="btn btn-sm" type="submit">Join</button>
+        <p class="form-note" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© {{ now.year }} {{ company.name }} · Est. {{ company.founded }}</span>
+    <span>{{ company.domain }}</span>
+  </div>
+</footer>
+
+<a class="wa-float" href="https://wa.me/{{ company.whatsapp }}" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <i data-lucide="message-circle"></i>
+</a>
+
+<script src="{{ url_for('static', filename='js/lucide.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

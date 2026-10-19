@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard — {{ company.name }} Admin</title>
+<link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="admin-body admin-dash">
+<header class="admin-top">
+  <a href="{{ url_for('home') }}" class="brand"><img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="" width="40" height="25"><span class="brand-text">XEON <em>NET</em></span></a>
+  <nav><a href="{{ url_for('home') }}" target="_blank">View site</a><a href="{{ url_for('admin_logout') }}">Logout</a></nav>
+</header>
+<main class="wrap">
+  {% with msgs = get_flashed_messages(with_categories=true) %}{% for c, m in msgs %}<p class="alert alert-{{ c }}">{{ m }}</p>{% endfor %}{% endwith %}
+  <div class="admin-stats">
+    <div><b>{{ stats.total }}</b><span>Total messages</span></div>
+    <div><b>{{ stats.unread }}</b><span>Unread</span></div>
+    <div><b>{{ stats.subscribers }}</b><span>Subscribers</span></div>
+  </div>
+
+  <div class="admin-bar">
+    <h2 class="h4">Inquiries</h2>
+    <div class="seg">
+      <a href="?show=all" class="{{ 'on' if show == 'all' }}">All</a>
+      <a href="?show=unread" class="{{ 'on' if show == 'unread' }}">Unread</a>
+    </div>
+  </div>
+
+  {% if not msgs %}<p class="muted empty">Abhi koi message nahi.</p>{% endif %}
+  <div class="msg-list">
+  {% for m in msgs %}
+    <article class="msg {{ 'unread' if not m.is_read }}">
+      <header>
+        <div><strong>{{ m.name }}</strong> <a href="mailto:{{ m.email }}">{{ m.email }}</a>{% if m.phone %} · <a href="tel:{{ m.phone }}">{{ m.phone }}</a>{% endif %}</div>
+        <time>{{ m.created_at.replace('T', ' ') }}</time>
+      </header>
+      <div class="msg-meta">{% if m.service %}<span>{{ m.service }}</span>{% endif %}{% if m.budget %}<span>{{ m.budget }}</span>{% endif %}</div>
+      <p>{{ m.message }}</p>
+      <footer>
+        <form method="post" action="{{ url_for('admin_toggle', mid=m.id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="link">{{ 'Mark unread' if m.is_read else 'Mark read' }}</button></form>
+        <a class="link" href="mailto:{{ m.email }}?subject=Re: Your inquiry — {{ company.name }}">Reply</a>
+        <form method="post" action="{{ url_for('admin_delete', mid=m.id) }}" onsubmit="return confirm('Delete this message?')"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="link danger">Delete</button></form>
+      </footer>
+    </article>
+  {% endfor %}
+  </div>
+
+  {% if subs %}
+  <h2 class="h4" style="margin-top:48px">Newsletter subscribers</h2>
+  <ul class="subs">{% for s in subs %}<li>{{ s.email }} <time>{{ s.created_at[:10] }}</time></li>{% endfor %}</ul>
+  {% endif %}
+</main>
+</body></html>

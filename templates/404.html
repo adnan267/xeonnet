@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Page not found — {{ company.name }}{% endblock %}
+{% block content %}
+<section class="page-hero center">
+  <div class="wrap">
+    <p class="since-year">404</p>
+    <h1>Yeh page nahi mila</h1>
+    <p class="lead">Shayad link badal gaya hai.</p>
+    <a href="{{ url_for('home') }}" class="btn">Home par jayein</a>
+  </div>
+</section>
+{% endblock %}

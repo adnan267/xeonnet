@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Login — {{ company.name }}</title>
+<link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="admin-body">
+  <form class="login-card" method="post">
+    <img src="{{ url_for('static', filename='img/logo-full.png') }}" alt="{{ company.name }}" width="200" height="143">
+    <h1 class="h4">Admin Panel</h1>
+    {% with msgs = get_flashed_messages(with_categories=true) %}{% for c, m in msgs %}<p class="alert alert-{{ c }}">{{ m }}</p>{% endfor %}{% endwith %}
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <label>Username<input name="username" required autocomplete="username"></label>
+    <label>Password<input name="password" type="password" required autocomplete="current-password"></label>
+    <button class="btn btn-block">Login</button>
+    <a class="muted small" href="{{ url_for('home') }}">← Website</a>
+  </form>
+</body></html>

@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block body_class %}home{% endblock %}
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <span class="stripe s1"></span><span class="stripe s2"></span><span class="stripe s3"></span>
+  </div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="dot"></span> Trusted IT partner · Est. {{ company.founded }}</p>
+      <h1>From the first <span class="grad">network cable</span><br>to <span class="grad">AI</span> — we grew with technology.</h1>
+      <p class="lead">{{ company.name }} ne {{ company.founded }} mein basic IT services se shuruat ki. Aaj hum full stack development, mobile apps, cloud, cyber security aur AI solutions provide kar rahe hain — sab ek hi chhat ke neeche.</p>
+      <div class="hero-cta">
+        <a href="#contact" class="btn">Start a Project <i data-lucide="arrow-right"></i></a>
+        <a href="#journey" class="btn btn-ghost">Our Journey</a>
+      </div>
+    </div>
+
+    <div class="hero-card" aria-label="Basic se advance tak">
+      <div class="since">
+        <span class="since-label">Since</span>
+        <span class="since-year">{{ company.founded }}</span>
+      </div>
+      <ol class="ladder">
+        {% for t in tiers|reverse %}
+        <li class="rung rung-{{ t.key }}">
+          <span class="rung-level">{{ t.level }}</span>
+          <div>
+            <strong>{{ t.name }}</strong>
+            <small>{{ t.services[:2]|map(attribute='title')|join(' · ') }}</small>
+          </div>
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+
+  <div class="wrap stats">
+    <div class="stat"><b><span data-count="{{ years }}">{{ years }}</span>+</b><span>Years in IT</span></div>
+    <div class="stat"><b><span data-count="{{ service_count }}">{{ service_count }}</span>+</b><span>IT Services</span></div>
+    <div class="stat"><b>3</b><span>Levels: Basic → Advanced</span></div>
+    <div class="stat"><b>24/7</b><span>Support</span></div>
+  </div>
+</section>
+
+<!-- JOURNEY -->
+<section class="section" id="journey">
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow">Our Journey</p>
+      <h2>{{ company.founded }} se aaj tak — <span class="grad">har daur ke saath aage</span></h2>
+      <p class="muted">Technology badalti gayi, aur Xeon Net bhi. Har saal humne naya seekha aur nayi services shamil kin.</p>
+    </header>
+
+    <div class="timeline">
+      {% for j in journey %}
+      <article class="tl-item reveal" style="--i: {{ loop.index0 }}">
+        <div class="tl-year">{{ j.year }}{% if loop.last %}<small>Now</small>{% endif %}</div>
+        <div class="tl-dot" aria-hidden="true"></div>
+        <div class="tl-body">
+          <h3>{{ j.title }}</h3>
+          <p>{{ j.text }}</p>
+          <div class="tags">{% for t in j.tags %}<span>{{ t }}</span>{% endfor %}</div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section section-alt" id="services">
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow">Services</p>
+      <h2>Basic se <span class="grad">Advance</span> tak — sab kuch</h2>
+      <p class="muted">Humari services teen levels mein hain. Chhota office ho ya bara enterprise, har zaroorat ka hal.</p>
+    </header>
+
+    <div class="tier-tabs" role="tablist">
+      <button class="tab active" data-tier="all" role="tab">All</button>
+      {% for t in tiers %}
+      <button class="tab" data-tier="{{ t.key }}" role="tab"><span>{{ t.level }}</span> {{ t.name }}</button>
+      {% endfor %}
+    </div>
+
+    {% for t in tiers %}
+    <div class="tier" data-tier="{{ t.key }}">
+      <div class="tier-head">
+        <span class="tier-level">Level {{ t.level }}</span>
+        <h3>{{ t.name }}</h3>
+        <p class="muted">{{ t.intro }}</p>
+        <div class="meter" aria-hidden="true"><i style="width: {{ (loop.index / loop.length * 100)|int }}%"></i></div>
+      </div>
+      <div class="cards">
+        {% for s in t.services %}
+        <a class="card reveal" href="{{ url_for('service_detail', slug=s.slug) }}">
+          <span class="card-icon"><i data-lucide="{{ s.icon }}"></i></span>
+          <h4>{{ s.title }}</h4>
+          <p>{{ s.short }}</p>
+          <span class="card-more">Details <i data-lucide="arrow-up-right"></i></span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="section" id="why">
+  <div class="wrap why-grid">
+    <header class="sec-head left">
+      <p class="eyebrow">Why {{ company.name }}</p>
+      <h2>{{ years }} saal ka bharosa,<br><span class="grad">aaj ki technology</span></h2>
+      <p class="muted">Purana tajurba aur nayi skills — yahi combination humein alag banata hai.</p>
+      <a href="#contact" class="btn">Talk to us <i data-lucide="arrow-right"></i></a>
+    </header>
+    <div class="why-cards">
+      {% for w in why %}
+      <div class="why reveal">
+        <i data-lucide="{{ w.icon }}"></i>
+        <h4>{{ w.title }}</h4>
+        <p>{{ w.text }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="section section-alt" id="process">
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow">How we work</p>
+      <h2>Simple, saaf <span class="grad">process</span></h2>
+    </header>
+    <ol class="process">
+      {% for title, text in process %}
+      <li class="reveal"><span>{{ "%02d"|format(loop.index) }}</span><h4>{{ title }}</h4><p>{{ text }}</p></li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section" id="contact">
+  <div class="wrap contact-grid">
+    <div class="contact-info">
+      <p class="eyebrow">Contact</p>
+      <h2>Apna project <span class="grad">shuru karein</span></h2>
+      <p class="muted">Form bharein ya seedha call / WhatsApp karein. Hum jald jawab denge.</p>
+      <ul class="contact-list">
+        <li><i data-lucide="mail"></i><a href="mailto:{{ company.email }}">{{ company.email }}</a></li>
+        <li><i data-lucide="phone"></i><a href="tel:{{ company.phone|replace(' ', '') }}">{{ company.phone }}</a></li>
+        <li><i data-lucide="map-pin"></i><span>{{ company.address }}</span></li>
+        <li><i data-lucide="clock"></i><span>{{ company.hours }}</span></li>
+      </ul>
+    </div>
+
+    <form class="contact-form" data-ajax action="{{ url_for('contact') }}" method="post" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="row">
+        <label>Name<input name="name" required minlength="2" maxlength="120" autocomplete="name"></label>
+        <label>Email<input name="email" type="email" required maxlength="160" autocomplete="email"></label>
+      </div>
+      <div class="row">
+        <label>Phone / WhatsApp<input name="phone" maxlength="40" autocomplete="tel"></label>
+        <label>Service
+          <select name="service">
+            <option value="">Select a service</option>
+            {% for t in tiers %}
+            <optgroup label="{{ t.name }}">
+              {% for s in t.services %}<option{% if request.args.get('service') == s.slug %} selected{% endif %}>{{ s.title }}</option>{% endfor %}
+            </optgroup>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <label>Budget (optional)
+        <select name="budget">
+          <option value="">Not sure yet</option>
+          <option>Under PKR 50,000</option>
+          <option>PKR 50,000 – 200,000</option>
+          <option>PKR 200,000 – 500,000</option>
+          <option>PKR 500,000+</option>
+        </select>
+      </label>
+      <label>Message<textarea name="message" rows="5" required minlength="10" maxlength="4000" placeholder="Apne project ke baare mein batayein..."></textarea></label>
+      <button class="btn btn-block" type="submit">Send Message <i data-lucide="send"></i></button>
+      <p class="form-note" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+{% endblock %}
