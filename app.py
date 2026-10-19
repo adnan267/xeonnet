@@ -17,12 +17,21 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import data
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-os.makedirs(os.path.join(BASE_DIR, "instance"), exist_ok=True)
 
-app = Flask(__name__)
+# Vercel / serverless par project folder read-only hota hai — sirf /tmp writable hai.
+if os.environ.get("DATABASE_PATH"):
+    DB_PATH = os.environ["DATABASE_PATH"]
+elif os.environ.get("VERCEL"):
+    DB_PATH = "/tmp/xeonnet.db"
+else:
+    DB_PATH = os.path.join(BASE_DIR, "instance", "xeonnet.db")
+os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+
+app = Flask(__name__, static_folder=os.path.join(BASE_DIR, "static"),
+            template_folder=os.path.join(BASE_DIR, "templates"))
 app.config.update(
     SECRET_KEY=os.environ.get("SECRET_KEY", "change-this-secret-key-in-production"),
-    DATABASE=os.path.join(BASE_DIR, "instance", "xeonnet.db"),
+    DATABASE=DB_PATH,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
 )
