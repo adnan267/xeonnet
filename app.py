@@ -140,7 +140,7 @@ def home():
     reviews = db.execute("SELECT * FROM reviews WHERE approved=1 ORDER BY id DESC LIMIT 3").fetchall()
     return render_template("index.html", journey=data.JOURNEY, why=data.WHY_US,
                            process=data.PROCESS, tech=data.TECH, reviews=reviews,
-                           portfolio=data.PORTFOLIO[:3])
+                           portfolio=data.PORTFOLIO[:3], brands=data.BRANDS)
 
 
 @app.route("/about")
@@ -176,6 +176,11 @@ def project_detail(slug):
     if not project:
         abort(404)
     return render_template("project.html", p=project, nxt=nxt)
+
+
+@app.route("/brands")
+def brands():
+    return render_template("brands.html", brands=data.BRANDS)
 
 
 @app.route("/clients")

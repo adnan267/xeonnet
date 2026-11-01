@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_hero, art with context %}
+{% block title %}Our Brands | {{ company.name }}{% endblock %}
+{% block description %}Businesses started and run by {{ company.name }}: multi-vendor e-commerce, 360 Consultancy, Boom Glow cosmetics and Ibrahim Real Estates.{% endblock %}
+{% block content %}
+{{ page_hero("Our brands", 'Businesses we <span class="grad">build and run</span>', company.name ~ " goes beyond client work. We start and operate our own businesses in e-commerce, consultancy, cosmetics and real estate.") }}
+
+<section class="section">
+  <div class="wrap">
+    {% for b in brands %}
+    <article class="brand-row{{ ' flip' if loop.index is even }}" id="{{ b.slug }}">
+      <div class="brand-row-art reveal">{{ art(b.art) }}</div>
+      <div class="brand-row-text reveal" style="--i:1">
+        <span class="brand-tag"><i data-lucide="{{ b.icon }}"></i> {{ b.industry }}</span>
+        <h2 class="h3">{{ b.name }} <small class="status">{{ b.status }}</small></h2>
+        <p class="role">{{ b.tagline }}</p>
+        <p class="muted-2">{{ b.text }}</p>
+        <ul class="checks tight">{% for f in b.features %}<li><i data-lucide="check"></i>{{ f }}</li>{% endfor %}</ul>
+        {% if b.url %}<a class="btn" href="{{ b.url }}" target="_blank" rel="noopener">Visit {{ b.name }} <i data-lucide="arrow-up-right"></i></a>
+        {% else %}<span class="muted small">Website link coming soon</span>{% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="wrap narrow center-text reveal">
+    <h2 class="h3">Want a business like these?</h2>
+    <p class="muted-2">The same team and technology behind our own brands can build your marketplace, consultancy portal, online store or property website.</p>
+    <a class="btn" href="{{ url_for('contact_page') }}">Start your project <i data-lucide="arrow-right"></i></a>
+  </div>
+</section>
+{% endblock %}

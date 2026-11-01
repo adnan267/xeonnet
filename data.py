@@ -34,6 +34,7 @@ NAV = [
     ("about", "About"),
     ("services", "Services"),
     ("portfolio", "Portfolio"),
+    ("brands", "Our Brands"),
     ("clients", "Clients"),
     ("team", "Team"),
     ("reviews", "Reviews"),
@@ -258,6 +259,34 @@ def project_cover(p):
         return "image", p["images"][0]
     return "art", CATEGORY_ART.get(p["category"], "web")
 
+
+
+# -------------------------------------------------------------- own brands
+# Businesses that Xeon Net itself has started and runs.
+# TODO: add each brand's live website link in "url" (blank = no button shown),
+#       and refine the descriptions/features with your real details.
+BRANDS = [
+    {"slug": "multi-vendor", "name": "Multi-vendor E-commerce", "industry": "E-commerce", "icon": "store",
+     "art": "ecommerce", "status": "Own platform", "url": "",
+     "tagline": "One marketplace, many sellers.",
+     "text": "Our multi-vendor e-commerce platform lets many sellers open their own stores and sell to customers from one website, with orders, payments and payouts handled in a single system.",
+     "features": ["Vendor stores and dashboards", "Product catalogue and search", "Orders, payments and payouts", "Admin control panel"]},
+    {"slug": "360-consultancy", "name": "360 Consultancy", "industry": "Consultancy", "icon": "globe",
+     "art": "consult", "status": "Live", "url": "https://360consultancy.pk",
+     "tagline": "Visa, study abroad and travel guidance.",
+     "text": "360 Consultancy helps people with visa consultancy, study abroad guidance and tour packages, with clear information and a simple online process.",
+     "features": ["Visa consultancy", "Study abroad guidance", "Tour and travel packages", "Online enquiry and support"]},
+    {"slug": "boom-glow", "name": "Boom Glow", "industry": "Cosmetics", "icon": "sparkles",
+     "art": "beauty", "status": "Own brand", "url": "",
+     "tagline": "Cosmetics and beauty, made to glow.",
+     "text": "Boom Glow is our cosmetics brand and online store, bringing beauty and skincare products to customers with easy ordering.",
+     "features": ["Cosmetics and beauty products", "Online store and ordering", "Brand design and marketing", "Customer support"]},
+    {"slug": "ibrahim-real-estates", "name": "Ibrahim Real Estates", "industry": "Real Estate", "icon": "building-2",
+     "art": "realestate", "status": "Own brand", "url": "",
+     "tagline": "Find the right property.",
+     "text": "Ibrahim Real Estates is our real estate business, helping buyers, sellers and renters find and list properties with clear details and easy enquiries.",
+     "features": ["Property listings", "Search by location and type", "Buyer and seller enquiries", "Agent and admin dashboard"]},
+]
 
 # ----------------------------------------------------------------- clients
 # Drop client logos (PNG/SVG/JPG) in static/img/clients/ — they appear

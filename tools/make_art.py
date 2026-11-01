@@ -239,10 +239,53 @@ def s_hero():
         + c(110, 390, 24, PANEL2, G, 3) + c(110, 390, 8, G) + c(584, 70, 7, G, op=.8) + c(30, 250, 5, G, op=.6))
 
 
+
+def spark(x, y, sz=14, fill=G):
+    return p(f"M{x} {y-sz} Q{x} {y} {x+sz} {y} Q{x} {y} {x} {y+sz} Q{x} {y} {x-sz} {y} Q{x} {y} {x} {y-sz} z", stroke="none", fill=fill)
+
+
+def s_beauty():
+    return svg(
+        f'<g filter="url(#sh)">' + r(150, 200, 70, 150, 10, PANEL2, LINE) + r(158, 150, 54, 56, 6, G) + p("M158 150 l54 -34 v34 z", stroke="none", fill=G, op=.85) + "</g>"
+        + r(165, 255, 40, 8, 4, LINE) + r(165, 275, 40, 8, 4, LINE)
+        + f'<g filter="url(#sh)">' + r(280, 170, 130, 180, 22, PANEL2, G, sw=2.5) + r(318, 130, 54, 42, 8, PANEL, LINE) + r(332, 108, 26, 24, 6, G) + "</g>"
+        + r(300, 230, 90, 70, 12, PANEL, LINE) + line(316, 252, 58, 8) + line(316, 272, 36, 8) + c(345, 200, 12, G, op=.9)
+        + f'<g filter="url(#sh)">' + c(500, 270, 78, PANEL2, LINE, 2.5) + c(500, 270, 62, INK, LINE) + "</g>"
+        + p("M458 250 q42 -36 84 0", sw=4, op=.7) + c(500, 280, 28, "none", G, 3, op=.9)
+        + spark(450, 150, 20) + spark(560, 130, 14) + spark(120, 120, 12) + spark(560, 360, 12) + c(250, 120, 5, G, op=.7))
+
+
+def s_realestate():
+    def tower(x, y, w, h):
+        wins = "".join(r(x + 10 + (i % 2) * (w // 2 - 6), y + 14 + (i // 2) * 26, w // 2 - 14, 14, 3, G if (i * 5) % 7 < 2 else LINE, op=.9) for i in range(2 * ((h - 20) // 26)))
+        return r(x, y, w, h, 8, PANEL2, LINE) + wins
+    return svg(
+        f'<g filter="url(#sh)">{tower(110, 90, 100, 260)}{tower(430, 130, 110, 220)}</g>'
+        + f'<g filter="url(#sh)">' + p("M200 250 l120 -100 120 100 v100 H200 z", stroke=G, sw=4, fill=PANEL) + "</g>"
+        + r(290, 280, 60, 70, 8, G, op=.9) + c(335, 316, 3, INK) + r(220, 262, 44, 36, 5, PANEL2, LINE) + r(376, 262, 44, 36, 5, PANEL2, LINE)
+        + p("M180 252 l140 -118 140 118", stroke=WHITE, sw=3, op=.35)
+        + r(70, 350, 500, 10, 5, PANEL2, LINE)
+        + f'<g filter="url(#sh)">' + p("M320 56 a28 28 0 0 1 28 28 c0 24 -28 52 -28 52 s-28 -28 -28 -52 a28 28 0 0 1 28 -28 z", stroke="none", fill=G) + "</g>" + c(320, 84, 10, INK)
+        + p("M520 70 a16 16 0 1 1 -2 0", sw=4, stroke=G) + p("M518 86 l-0 30 m0 -10 h14 m-14 10 h10", sw=4, stroke=G) + c(90, 130, 6, G, op=.7))
+
+
+def s_consult():
+    return svg(
+        f'<g filter="url(#sh)">' + c(300, 220, 120, PANEL, LINE, 2.5) + "</g>"
+        + f'<ellipse cx="300" cy="220" rx="48" ry="120" stroke="{LINE}" stroke-width="2" fill="none"/>' + p("M180 220 h240 M196 160 h208 M196 280 h208", stroke=LINE, sw=2)
+        + p("M200 290 C260 180 340 160 420 150", sw=4, stroke=G) + p("M388 130 l44 20 -34 28 6 -20 z", stroke=WHITE, sw=3, fill=PANEL2)
+        + c(200, 290, 7, G)
+        + f'<g filter="url(#sh)">' + r(450, 190, 120, 160, 12, PANEL2, G, sw=2.5) + "</g>" + c(510, 250, 24, "none", WHITE, 3, op=.6)
+        + p("M486 250 h48 M510 226 v48", stroke=WHITE, sw=2, op=.5) + line(468, 296, 84, 8) + line(468, 312, 56, 6)
+        + f'<g filter="url(#sh)">' + r(70, 80, 190, 70, 16, PANEL2, LINE) + "</g>" + p("M70 140 l-14 28 36 -14", stroke=LINE, sw=2, fill=PANEL2)
+        + c(100, 115, 14, G) + p("M93 115 l5 5 9 -10", stroke=INK, sw=3) + line(124, 104, 110, 8) + line(124, 120, 70, 8)
+        + r(70, 330, 150, 50, 14, G) + line(90, 351, 100, 8, INK) + c(560, 110, 7, G, op=.8))
+
+
 SCENES = {
     "hero": s_hero, "web": s_web, "mobile": s_mobile, "ecommerce": s_ecom, "software": s_software,
     "marketing": s_marketing, "network": s_network, "hosting": s_hosting, "cloud": s_cloud,
-    "security": s_security, "ai": s_ai, "animation": s_animation, "support": s_support, "stack": s_stack,
+    "security": s_security, "beauty": s_beauty, "realestate": s_realestate, "consult": s_consult, "ai": s_ai, "animation": s_animation, "support": s_support, "stack": s_stack,
 }
 
 if __name__ == "__main__":

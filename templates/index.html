@@ -65,7 +65,30 @@
   </div>
 </section>
 
-<section class="section section-alt" id="why">
+<section class="section section-alt" id="brands">
+  <div class="wrap">
+    <header class="sec-head reveal">
+      <p class="eyebrow">Our own businesses</p>
+      <h2>We don't just build for others. <span class="grad">We build brands too.</span></h2>
+      <p class="muted">Xeon Net also runs its own businesses across e-commerce, consultancy, cosmetics and real estate, using the same technology we build for our clients.</p>
+    </header>
+    <div class="brand-grid">
+      {% for b in brands %}
+      <a class="brand-card reveal" style="--i: {{ loop.index0 }}" href="{{ url_for('brands') }}#{{ b.slug }}">
+        <div class="brand-art">{{ art(b.art) }}</div>
+        <div class="brand-body">
+          <span class="brand-tag"><i data-lucide="{{ b.icon }}"></i> {{ b.industry }}</span>
+          <h4>{{ b.name }}</h4>
+          <p>{{ b.tagline }}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    <p class="center-link reveal"><a href="{{ url_for('brands') }}" class="btn btn-ghost">Explore our brands <i data-lucide="arrow-right"></i></a></p>
+  </div>
+</section>
+
+<section class="section" id="why">
   <div class="wrap why-grid">
     <header class="sec-head left reveal">
       <p class="eyebrow">Why {{ company.name }}</p>
