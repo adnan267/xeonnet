@@ -591,3 +591,19 @@ textarea { resize: vertical; }
 @media (max-width: 560px) { .brand-grid { grid-template-columns: 1fr; } }
 
 @media (max-width: 1180px) and (min-width: 1021px) { .nav-links { gap: 12px; font-size: .84rem; } .brand-text { font-size: 1.1rem; } }
+
+/* compact brands strip (home) */
+.section.compact { padding: 56px 0; }
+.brands-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.brands-head h2 { margin: 0; font-size: clamp(1.4rem, 2.6vw, 2rem); }
+.brands-head .eyebrow { margin-bottom: .4em; }
+.brand-mini { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.brand-chip { position: relative; display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 14px; background: var(--bg-2); border: 1px solid var(--line); transition: transform .3s, border-color .3s; }
+.brand-chip:hover { transform: translateY(-4px); border-color: rgba(229,112,26,.55); }
+.brand-chip .card-icon { flex: none; width: 44px; height: 44px; }
+.brand-chip h4 { margin: 0; font-size: .98rem; line-height: 1.25; }
+.brand-chip p { margin: 2px 0 0; font-size: .8rem; color: var(--muted); }
+.chip-arrow { margin-left: auto; flex: none; color: var(--amber); width: 1em; opacity: .7; transition: transform .3s; }
+.brand-chip:hover .chip-arrow { transform: translate(3px, -3px); opacity: 1; }
+@media (max-width: 1180px) { .brand-mini { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .brand-mini { grid-template-columns: 1fr; } .section.compact { padding: 44px 0; } }
