@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import stars, service_cards, work_card %}
+{% from "_macros.html" import stars, service_cards, work_card, art, faq_list with context %}
 {% block body_class %}home{% endblock %}
 {% block content %}
 
@@ -22,23 +22,11 @@
       </div>
     </div>
 
-    <div class="hero-card anim-pop" aria-label="From basic to advanced">
-      <img class="hero-logo" src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="" width="120" height="76">
-      <div class="since">
-        <span class="since-label">Since</span>
-        <span class="since-year">{{ company.founded }}</span>
-      </div>
-      <ol class="ladder">
-        {% for t in tiers|reverse %}
-        <li class="rung rung-{{ t.key }}">
-          <span class="rung-level">{{ t.level }}</span>
-          <div>
-            <strong>{{ t.name }}</strong>
-            <small>{{ t.services[:2]|map(attribute='title')|join(' · ') }}</small>
-          </div>
-        </li>
-        {% endfor %}
-      </ol>
+    <div class="hero-visual anim-pop" aria-label="Websites, apps and software built by Xeon Net">
+      {{ art('hero', 'hero-art-img') }}
+      <div class="float-badge fb1"><span class="since-label">Since</span><b>{{ company.founded }}</b></div>
+      <div class="float-badge fb2"><i data-lucide="layers"></i><span>Basic to Advanced</span></div>
+      <div class="float-badge fb3"><i data-lucide="shield-check"></i><span>Secure &amp; scalable</span></div>
     </div>
   </div>
 
@@ -84,6 +72,7 @@
       <h2>{{ years }} years of trust,<br><span class="grad">today's technology</span></h2>
       <p class="muted">Long experience combined with modern skills is what sets us apart.</p>
       <a href="{{ url_for('about') }}" class="btn">About us <i data-lucide="arrow-right"></i></a>
+      <div class="side-art">{{ art('support') }}</div>
     </header>
     <div class="why-cards">
       {% for w in why %}
@@ -142,6 +131,18 @@
       <li class="reveal" style="--i: {{ loop.index0 }}"><span>{{ "%02d"|format(loop.index) }}</span><h4>{{ title }}</h4><p>{{ text }}</p></li>
       {% endfor %}
     </ol>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="wrap faq-grid">
+    <header class="sec-head left reveal">
+      <p class="eyebrow">FAQ</p>
+      <h2>Questions? <span class="grad">Answered.</span></h2>
+      <p class="muted">Can't find what you need? Call or WhatsApp us on {{ company.phone }}.</p>
+      <a href="{{ url_for('contact_page') }}" class="btn">Ask us anything <i data-lucide="arrow-right"></i></a>
+    </header>
+    <div>{{ faq_list(faqs) }}</div>
   </div>
 </section>
 {% endblock %}

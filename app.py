@@ -124,6 +124,9 @@ def inject_globals():
         "years": data.YEARS,
         "tiers": data.SERVICE_TIERS,
         "nav": data.NAV,
+        "service_art": data.service_art,
+        "project_cover": data.project_cover,
+        "faqs": data.FAQS,
         "service_count": data.SERVICE_COUNT,
         "csrf_token": csrf_token,
         "now": datetime.now(),
@@ -157,13 +160,22 @@ def service_detail(slug):
     if not service:
         abort(404)
     related = [s for s in tier["services"] if s["slug"] != slug]
-    return render_template("service.html", tier=tier, service=service, related=related)
+    return render_template("service.html", tier=tier, service=service, related=related,
+                           process=data.PROCESS_DETAIL)
 
 
 @app.route("/portfolio")
 def portfolio():
     return render_template("portfolio.html", items=data.PORTFOLIO,
                            categories=data.PORTFOLIO_CATEGORIES)
+
+
+@app.route("/portfolio/<slug>")
+def project_detail(slug):
+    project, nxt = data.find_project(slug)
+    if not project:
+        abort(404)
+    return render_template("project.html", p=project, nxt=nxt)
 
 
 @app.route("/clients")

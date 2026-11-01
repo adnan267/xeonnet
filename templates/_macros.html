@@ -15,7 +15,7 @@
 <div class="cards">
   {% for s in tier.services %}
   <a class="card reveal" style="--i: {{ loop.index0 }}" href="{{ url_for('service_detail', slug=s.slug) }}">
-    <span class="card-icon"><i data-lucide="{{ s.icon }}"></i></span>
+    <div class="card-thumb"><img src="{{ url_for('static', filename='img/art/' + service_art(s.slug) + '.svg') }}" alt="" loading="lazy" width="640" height="440"><span class="card-icon"><i data-lucide="{{ s.icon }}"></i></span></div>
     <h4>{{ s.title }}</h4>
     <p>{{ s.short }}</p>
     <span class="card-more">Details <i data-lucide="arrow-up-right"></i></span>
@@ -24,18 +24,37 @@
 </div>
 {% endmacro %}
 
+{% macro art(name, cls="") %}<img class="art {{ cls }}" src="{{ url_for('static', filename='img/art/' + name + '.svg') }}" alt="" loading="lazy" width="640" height="440">{% endmacro %}
+
+{% macro cover(p) %}
+  {% set kind, val = project_cover(p) %}
+  {% if kind == 'image' %}<img class="shot" src="{{ url_for('static', filename='img/portfolio/' + val) }}" alt="{{ p.title }} screenshot" loading="lazy">
+  {% else %}<img class="art" src="{{ url_for('static', filename='img/art/' + val + '.svg') }}" alt="" loading="lazy" width="640" height="440">{% endif %}
+{% endmacro %}
+
 {% macro work_card(p, i=0) %}
-<article class="work reveal" style="--i: {{ i }}" data-cat="{{ p.category }}">
+<a class="work reveal" href="{{ url_for('project_detail', slug=p.slug) }}" style="--i: {{ i }}" data-cat="{{ p.category }}">
   <div class="work-img">
-    {% if p.image %}<img src="{{ url_for('static', filename='img/portfolio/' + p.image) }}" alt="{{ p.title }}" loading="lazy">
-    {% else %}<div class="work-ph"><img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="" width="90"></div>{% endif %}
+    {{ cover(p) }}
     <span class="work-cat">{{ p.category }}</span>
+    {% if p.sample %}<span class="work-sample">Sample project</span>{% endif %}
   </div>
   <div class="work-body">
     <h4>{{ p.title }}</h4>
-    <p>{{ p.text }}</p>
-    <div class="tags">{% for t in p.tags %}<span>{{ t }}</span>{% endfor %}</div>
-    {% if p.url %}<a class="card-more" href="{{ p.url }}" target="_blank" rel="noopener">Visit project <i data-lucide="arrow-up-right"></i></a>{% endif %}
+    <p>{{ p.summary }}</p>
+    <div class="tags">{% for t in p.tech[:3] %}<span>{{ t }}</span>{% endfor %}</div>
+    <span class="card-more">View case study <i data-lucide="arrow-up-right"></i></span>
   </div>
-</article>
+</a>
+{% endmacro %}
+
+{% macro faq_list(items) %}
+<div class="faq">
+  {% for q, a in items %}
+  <details class="reveal" style="--i: {{ loop.index0 }}"{% if loop.first %} open{% endif %}>
+    <summary>{{ q }}<i data-lucide="plus"></i></summary>
+    <p>{{ a }}</p>
+  </details>
+  {% endfor %}
+</div>
 {% endmacro %}

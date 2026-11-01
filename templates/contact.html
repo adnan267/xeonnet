@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import page_hero %}
+{% from "_macros.html" import page_hero with context %}
 {% block title %}Contact | {{ company.name }}{% endblock %}
 {% block content %}
 {{ page_hero("Contact", 'Let\'s start your <span class="grad">project</span>', "Fill in the form or call and message us directly. We reply quickly.") }}

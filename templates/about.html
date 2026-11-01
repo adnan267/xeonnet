@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import page_hero %}
+{% from "_macros.html" import page_hero, art with context %}
 {% block title %}About Us | {{ company.name }}{% endblock %}
 {% block content %}
 {{ page_hero("About us", 'Building technology for businesses <span class="grad">since ' ~ company.founded ~ '</span>', company.name ~ " began with basic IT services and has grown, step by step, into a full stack development and digital solutions company.") }}
@@ -13,6 +13,7 @@
       <p class="muted-2">Over {{ years }} years, one thing has not changed: we treat every client's business as our own.</p>
     </div>
     <div class="mv">
+      <div class="about-art reveal">{{ art('hero') }}</div>
       <div class="mv-card reveal"><i data-lucide="target"></i><h4>Our mission</h4><p>{{ mission }}</p></div>
       <div class="mv-card reveal" style="--i:1"><i data-lucide="eye"></i><h4>Our vision</h4><p>{{ vision }}</p></div>
     </div>

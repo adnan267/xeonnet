@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import page_hero %}
+{% from "_macros.html" import page_hero with context %}
 {% block title %}Team | {{ company.name }}{% endblock %}
 {% block content %}
 {{ page_hero("Our team", 'The people behind <span class="grad">Xeon Net</span>', "Experienced engineers, designers and support specialists, led by our CEO.") }}

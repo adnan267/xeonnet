@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import page_hero, work_card %}
+{% from "_macros.html" import page_hero, work_card with context %}
 {% block title %}Portfolio | {{ company.name }}{% endblock %}
 {% block content %}
 {{ page_hero("Portfolio", 'Our <span class="grad">work</span>', "A selection of the websites, apps, software and campaigns we build for our clients.") }}

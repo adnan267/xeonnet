@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import page_hero, service_cards %}
+{% from "_macros.html" import page_hero, service_cards with context %}
 {% block title %}Services | {{ company.name }}{% endblock %}
 {% block content %}
 {{ page_hero("Services", 'Basic to <span class="grad">advanced</span>, everything IT', "Our " ~ service_count ~ " services come in three levels. Pick one, or combine them into a complete solution.") }}

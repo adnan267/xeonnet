@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import page_hero, stars %}
+{% from "_macros.html" import page_hero, stars with context %}
 {% block title %}Reviews | {{ company.name }}{% endblock %}
 {% block content %}
 {{ page_hero("Reviews", 'What our <span class="grad">clients say</span>', "Honest feedback from the people we work with. Worked with us? Share your experience below.") }}
