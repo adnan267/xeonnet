@@ -37,7 +37,7 @@ NAV = [
     ("clients", "Clients"),
     ("team", "Team"),
     ("reviews", "Reviews"),
-    ("contact", "Contact"),
+    ("contact_page", "Contact"),
 ]
 
 # ------------------------------------------------------------------ journey
