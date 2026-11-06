@@ -499,5 +499,5 @@ DOC_DEFAULTS = {
                       "Work remains the property of Xeon Net until the invoice is paid in full."),
 }
 
-# First number issued per document type (invoices start at 0335).
-NUMBER_START = {"invoice": 335, "proposal": 1}
+# First number issued per document type (invoices and proposals start at 0335).
+NUMBER_START = {"invoice": 335, "proposal": 335}
