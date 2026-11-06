@@ -25,9 +25,15 @@ def env_list(name, default=""):
 
 
 DEBUG = env_bool("DEBUG", False)
-SECRET_KEY = env("SECRET_KEY") or ("dev-only-insecure-key" if DEBUG or not env("VERCEL") else "")
+SECRET_KEY = env("SECRET_KEY")
+CONFIG_PROBLEMS = []
 if not SECRET_KEY:
-    raise RuntimeError("Set the SECRET_KEY environment variable.")
+    if env("VERCEL") and not DEBUG:
+        CONFIG_PROBLEMS.append("SECRET_KEY is not set (logins will reset on every restart)")
+        import secrets as _s
+        SECRET_KEY = _s.token_urlsafe(50)
+    else:
+        SECRET_KEY = "dev-only-insecure-key"
 
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,.vercel.app,.xeonnet.site")
 # Public address of the website (Next.js). Used in emails and links.
@@ -82,6 +88,7 @@ DATABASES = {
 if DATABASES["default"]["ENGINE"].endswith("postgresql"):
     # pooled connection strings (pgbouncer) do not support server-side prepared statements
     DATABASES["default"].setdefault("OPTIONS", {})["prepare_threshold"] = None
+    DATABASES["default"]["OPTIONS"]["connect_timeout"] = 8
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"

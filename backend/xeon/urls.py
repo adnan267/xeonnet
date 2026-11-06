@@ -21,9 +21,31 @@ router.register("team", api.TeamViewSet, basename="team")
 
 admin.site.site_header = "Xeon Net — database admin"
 
+
+def health(request):
+    """Quick status page: is the server up, can it reach the database, any setup problems?"""
+    import sys
+
+    from django.conf import settings
+    from django.db import connection
+
+    from xeon import bootstrap
+    data = {"ok": True, "python": sys.version.split()[0], "problems": list(settings.CONFIG_PROBLEMS) + bootstrap.ERRORS}
+    try:
+        with connection.cursor() as c:
+            c.execute("SELECT 1")
+        from django.contrib.auth import get_user_model
+        data["database"] = f"ok ({connection.vendor})"
+        data["admins"] = get_user_model().objects.filter(is_superuser=True).count()
+    except Exception as e:  # noqa: BLE001
+        data["ok"] = False
+        data["database"] = bootstrap._remember("database", e) or bootstrap.ERRORS[-1]
+    return JsonResponse(data)
+
+
 urlpatterns = [
     path("django-admin/", admin.site.urls),
-    path("api/health", lambda r: JsonResponse({"ok": True})),
+    path("api/health", health),
     # auth
     path("api/auth/csrf", auth.csrf),
     path("api/auth/login", auth.login_view),

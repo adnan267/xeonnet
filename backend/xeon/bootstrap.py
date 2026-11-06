@@ -7,6 +7,21 @@ import logging
 import os
 
 log = logging.getLogger("bootstrap")
+ERRORS = []   # shown (without passwords) on /api/health
+
+
+def _remember(where, e):
+    msg = f"{where}: {type(e).__name__}: {e}"
+    pw = ""
+    try:
+        from urllib.parse import urlparse
+        pw = urlparse(os.environ.get("DATABASE_URL", "")).password or ""
+    except Exception:  # noqa: BLE001
+        pass
+    if pw:
+        msg = msg.replace(pw, "***")
+    ERRORS.append(msg[:500])
+    log.error(msg)
 
 
 def run():
@@ -21,7 +36,7 @@ def run():
                     c.execute("SELECT pg_advisory_lock(7007007)")   # only one server migrates at a time
             call_command("migrate", interactive=False, verbosity=0)
         except Exception as e:  # noqa: BLE001
-            log.error("migrate failed: %s", e)
+            _remember("migrate", e)
         finally:
             if connection.vendor == "postgresql":
                 try:
@@ -40,5 +55,5 @@ def run():
                                               last_name="Adnan", job_title="CEO")
                 log.info("created first admin %s", email)
         except Exception as e:  # noqa: BLE001
-            log.error("admin bootstrap failed: %s", e)
+            _remember("admin", e)
     _ = settings
