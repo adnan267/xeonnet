@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>{{ subject }}</title></head>
+<body style="margin:0;background:#f4f2ee;font-family:Arial,Helvetica,sans-serif;color:#1b1b1b">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f2ee;padding:24px 12px">
+<tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:10px;overflow:hidden;border-top:5px solid #E5701A">
+<tr><td style="padding:28px 32px 8px;font-family:Georgia,serif;font-size:22px;letter-spacing:2px;font-weight:bold">XEON <span style="color:#E5701A">NET</span>
+<div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:0;color:#888;font-weight:normal">Full Stack Development &amp; Digital Solution</div></td></tr>
+<tr><td style="padding:16px 32px 8px;font-size:15px;line-height:1.6">
+{% for p in paragraphs %}<p style="margin:0 0 14px">{{ p|safe|linebreaksbr }}</p>{% endfor %}
+</td></tr>
+{% if cta %}<tr><td style="padding:4px 32px 28px"><a href="{{ cta.url }}" style="display:inline-block;background:#E5701A;color:#140802;text-decoration:none;font-weight:bold;padding:12px 24px;border-radius:999px">{{ cta.label }}</a></td></tr>{% endif %}
+<tr><td style="padding:18px 32px;background:#faf8f5;font-size:12px;color:#777;line-height:1.6">
+Xeon Net · Business Hub Workspace, Faisalabad · +92 300 6666190 · <a href="{{ site }}" style="color:#B4500C">xeonnet.site</a></td></tr>
+</table></td></tr></table>
+</body></html>

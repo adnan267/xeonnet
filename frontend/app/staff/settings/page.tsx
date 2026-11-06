@@ -1,0 +1,66 @@
+"use client";
+import { useEffect, useState } from "react";
+import { useTitle } from "@/components/panel/AppShell";
+import { Flash, useLoad } from "@/components/panel/ui";
+import { api } from "@/lib/api";
+
+type S = {
+  bank_name: string; account_title: string; account_number: string; iban: string; other_payment: string;
+  invoice_start: number; proposal_start: number; email_enabled: boolean; sms_enabled: boolean;
+  remind_days_before: number; overdue_repeat_days: number; proposal_terms: string; invoice_terms: string;
+  providers: { email: string; sms: string };
+};
+
+export default function Settings() {
+  useTitle("Settings");
+  const [data] = useLoad<S>("staff/settings");
+  const [f, setF] = useState<S | null>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  useEffect(() => { if (data) setF(data); }, [data]);
+  if (!f) return <p className="muted">Loading…</p>;
+  const bind = (k: keyof S) => ({ value: String(f[k] ?? ""), onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value }) });
+  async function save(e: React.FormEvent) {
+    e.preventDefault();
+    try { setF(await api<S>("staff/settings", { method: "PUT", body: f })); setMsg({ ok: true, text: "Settings saved." }); }
+    catch (e) { setMsg({ ok: false, text: (e as Error).message }); }
+  }
+  return (
+    <form onSubmit={save} className="stack" style={{ maxWidth: 900, ["--gap" as string]: "18px" }}>
+      <Flash msg={msg} onDone={() => setMsg(null)} />
+      <section className="panel stack">
+        <h3 className="panel-title" style={{ margin: 0 }}>Bank / payment details <span className="muted small">(printed on invoices)</span></h3>
+        <div className="form-grid">
+          <label className="field">Bank<input {...bind("bank_name")} placeholder="e.g. Meezan Bank" /></label>
+          <label className="field">Account title<input {...bind("account_title")} /></label>
+          <label className="field">Account number<input {...bind("account_number")} /></label>
+          <label className="field">IBAN<input {...bind("iban")} /></label>
+        </div>
+        <label className="field">Other ways to pay<input {...bind("other_payment")} placeholder="JazzCash / Easypaisa: 0300 6666190" /></label>
+      </section>
+      <section className="panel stack">
+        <h3 className="panel-title" style={{ margin: 0 }}>Email &amp; SMS</h3>
+        <p className="muted small">Email service: <b>{f.providers.email}</b> · SMS service: <b>{f.providers.sms}</b>. {f.providers.email === "console" && "Emails are only written to the server log until an email service is connected."} {f.providers.sms === "console" && "SMS is not connected yet."}</p>
+        <div className="row"><label className="check"><input type="checkbox" checked={f.email_enabled} onChange={(e) => setF({ ...f, email_enabled: e.target.checked })} /> Send emails to clients</label>
+          <label className="check"><input type="checkbox" checked={f.sms_enabled} onChange={(e) => setF({ ...f, sms_enabled: e.target.checked })} /> Send SMS to clients</label></div>
+        <div className="form-grid">
+          <label className="field">Reminder before due date (days)<input type="number" min={0} max={30} {...bind("remind_days_before")} /></label>
+          <label className="field">Repeat overdue reminder every (days)<input type="number" min={1} max={60} {...bind("overdue_repeat_days")} /></label>
+        </div>
+      </section>
+      <section className="panel stack">
+        <h3 className="panel-title" style={{ margin: 0 }}>Numbering</h3>
+        <div className="form-grid">
+          <label className="field">First invoice number each year<input type="number" min={1} {...bind("invoice_start")} /></label>
+          <label className="field">First proposal number each year<input type="number" min={1} {...bind("proposal_start")} /></label>
+        </div>
+        <p className="muted small">Numbers look like XN-INV-2026-0335. If documents already exist, numbering continues after the highest one.</p>
+      </section>
+      <section className="panel stack">
+        <h3 className="panel-title" style={{ margin: 0 }}>Default terms</h3>
+        <label className="field">Proposal terms<textarea rows={4} {...bind("proposal_terms")} /></label>
+        <label className="field">Invoice terms<textarea rows={3} {...bind("invoice_terms")} /></label>
+      </section>
+      <div><button className="btn">Save settings</button></div>
+    </form>
+  );
+}
