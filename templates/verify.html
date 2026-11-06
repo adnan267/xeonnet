@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "_macros.html" import page_hero with context %}
+{% block title %}Verify a Certificate | {{ company.name }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+{{ page_hero("Verification", 'Verify a <span class="grad">certificate</span>', "Check that an internship certificate, experience letter or other document was really issued by " ~ company.name ~ ".") }}
+<section class="section">
+  <div class="wrap verify-wrap">
+    <form class="verify-form reveal" method="post" action="{{ url_for('verify.verify_page') }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <label>Certificate / document code
+        <input name="code" value="{{ code }}" placeholder="e.g. XN-CERT-2026-0001-7F3A" required maxlength="40" autocomplete="off">
+      </label>
+      <button class="btn">Verify <i data-lucide="shield-check"></i></button>
+      <p class="muted small">The code is printed on the document (or scan its QR code).</p>
+    </form>
+
+    {% if code %}
+      {% if record %}
+      <article class="verify-card {{ 'bad' if record.status == 'revoked' else 'good' }} reveal">
+        <div class="verify-badge"><i data-lucide="{{ 'shield-x' if record.status == 'revoked' else 'badge-check' }}"></i>
+          <div><b>{{ 'This document has been revoked' if record.status == 'revoked' else 'Verified: this document is genuine' }}</b>
+          <span>{{ 'It is no longer valid. Contact ' ~ company.name ~ ' for details.' if record.status == 'revoked' else 'Issued by ' ~ company.name }}</span></div></div>
+        <dl class="verify-data">
+          <div><dt>Issued to</dt><dd>{{ record.holder_name }}</dd></div>
+          <div><dt>Document</dt><dd>{{ record.doc_type }}</dd></div>
+          {% if record.title %}<div><dt>Program / role</dt><dd>{{ record.title }}</dd></div>{% endif %}
+          {% if record.period %}<div><dt>Period</dt><dd>{{ record.period }}</dd></div>{% endif %}
+          <div><dt>Date of issue</dt><dd>{{ record.issued_on }}</dd></div>
+          {% if record.note %}<div><dt>Remarks</dt><dd>{{ record.note }}</dd></div>{% endif %}
+          <div><dt>Code</dt><dd><code>{{ record.code }}</code></dd></div>
+        </dl>
+      </article>
+      {% else %}
+      <article class="verify-card bad reveal">
+        <div class="verify-badge"><i data-lucide="shield-alert"></i>
+          <div><b>No record found</b><span>We could not find a document with the code “{{ code }}”. Check the code and try again, or contact us on {{ company.phone }}.</span></div></div>
+      </article>
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

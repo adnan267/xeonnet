@@ -709,3 +709,21 @@ dl.sum .grand { border-top: 1px solid var(--line); padding-top: 10px; font-size:
   .paper-items th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .paper-items tr, .paper-block, .paper-foot { break-inside: avoid; }
 }
+
+/* ===== Verification ===== */
+.verify-wrap { max-width: 720px; }
+.verify-form { display: grid; gap: 14px; padding: 26px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-2); }
+.verify-form input { text-transform: uppercase; letter-spacing: .06em; font-size: 1.05rem; }
+.verify-form .btn { justify-self: start; }
+.verify-card { margin-top: 24px; padding: 26px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-2); }
+.verify-card.good { border-color: #2e7d4a; background: linear-gradient(180deg, rgba(46,125,74,.14), var(--bg-2) 60%); }
+.verify-card.bad { border-color: #a8452b; background: linear-gradient(180deg, rgba(214,64,15,.14), var(--bg-2) 60%); }
+.verify-badge { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; }
+.verify-badge > i, .verify-badge > svg { width: 42px; height: 42px; flex: none; }
+.verify-card.good .verify-badge svg { color: #6fd08c; } .verify-card.bad .verify-badge svg { color: #ff8a6b; }
+.verify-badge b { display: block; font-size: 1.15rem; } .verify-badge span { color: var(--muted); font-size: .92rem; }
+.verify-data { margin: 0; display: grid; gap: 0; }
+.verify-data div { display: grid; grid-template-columns: 160px 1fr; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); }
+.verify-data dt { color: var(--muted); font-size: .85rem; } .verify-data dd { margin: 0; font-weight: 600; }
+.verify-data code { word-break: break-all; }
+@media (max-width: 560px) { .verify-data div { grid-template-columns: 1fr; gap: 2px; } }

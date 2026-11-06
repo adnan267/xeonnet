@@ -92,3 +92,10 @@ Log in at `/admin`, then use **Clients** and **Proposals & Invoices**:
 Vercel's disk is temporary. Create a free PostgreSQL database (Neon or Supabase) and add its connection string as the
 `DATABASE_URL` environment variable in Vercel, plus `SECRET_KEY`, `ADMIN_USER` and `ADMIN_PASSWORD`, then redeploy.
 Without `DATABASE_URL` the site uses SQLite (fine on your own server / locally).
+
+## Certificate & document verification
+
+`/admin` → **Certificates**: issue an internship certificate, experience letter etc. A unique code such as
+`XN-CERT-2026-0001-7F3A` is created. Print the code (or the QR code from the **QR** link) on the document.
+Anyone can check it at `/verify` (or by scanning the QR). You can **Revoke** a document at any time.
+Only name, document type, program, period, date and remarks are public.

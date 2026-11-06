@@ -161,6 +161,18 @@ CREATE TABLE IF NOT EXISTS document_items (
     qty         {REAL} NOT NULL DEFAULT 1,
     unit_price  {REAL} NOT NULL DEFAULT 0
 );
+CREATE TABLE IF NOT EXISTS credentials (
+    id          {PK},
+    code        TEXT NOT NULL UNIQUE,
+    holder_name TEXT NOT NULL,
+    doc_type    TEXT NOT NULL,
+    title       TEXT,
+    period      TEXT,
+    issued_on   TEXT NOT NULL,
+    status      TEXT NOT NULL DEFAULT 'valid',
+    note        TEXT,
+    created_at  TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS payments (
     id          {PK},
     document_id INTEGER NOT NULL REFERENCES documents(id) ON DELETE CASCADE,

@@ -501,3 +501,7 @@ DOC_DEFAULTS = {
 
 # First number issued per document type (invoices and proposals start at 0335).
 NUMBER_START = {"invoice": 335, "proposal": 335}
+
+# ----------------------------------------------------------- verification
+CREDENTIAL_TYPES = ["Internship Completion Certificate", "Experience Letter", "Appointment Letter",
+                    "Course Certificate", "Recommendation Letter", "Other Document"]

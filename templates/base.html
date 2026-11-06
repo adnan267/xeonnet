@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% block robots %}{% endblock %}
   <title>{% block title %}{{ company.name }} | {{ company.tagline }}{% endblock %}</title>
   <meta name="description" content="{% block description %}{{ company.name }}: IT services since {{ company.founded }}. From hardware, networking and hosting to full stack development, mobile apps, cloud and AI.{% endblock %}">
   <meta property="og:title" content="{{ company.name }}: IT services since {{ company.founded }}">
@@ -69,6 +70,7 @@
       <h4>Company</h4>
       <ul>
         {% for ep, label in nav %}<li><a href="{{ url_for(ep) }}">{{ label }}</a></li>{% endfor %}
+        <li><a href="{{ url_for('verify.verify_page') }}">Verify a Certificate</a></li>
       </ul>
     </div>
     <div>

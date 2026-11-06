@@ -4,6 +4,7 @@
     <a href="{{ url_for('admin_dashboard') }}" class="{{ 'on' if active == 'inbox' }}">Inbox</a>
     <a href="{{ url_for('billing.clients_list') }}" class="{{ 'on' if active == 'clients' }}">Clients</a>
     <a href="{{ url_for('billing.documents_list') }}" class="{{ 'on' if active == 'documents' }}">Proposals &amp; Invoices</a>
+    <a href="{{ url_for('verify.credentials_list') }}" class="{{ 'on' if active == 'credentials' }}">Certificates</a>
     <a href="{{ url_for('home') }}" target="_blank">View site</a>
     <a href="{{ url_for('admin_logout') }}">Logout</a>
   </nav>

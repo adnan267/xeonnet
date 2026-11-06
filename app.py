@@ -13,6 +13,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import data
 import db as dbmod
 from billing import bp as billing_bp
+from verify import bp as verify_bp
 from core import EMAIL_RE, check_csrf, close_db, csrf_token, get_db, login_required
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -26,6 +27,7 @@ app.config.update(
 )
 app.teardown_appcontext(close_db)
 app.register_blueprint(billing_bp)
+app.register_blueprint(verify_bp)
 
 # Admin login: set these as environment variables in production
 ADMIN_USER = os.environ.get("ADMIN_USER", "admin")
