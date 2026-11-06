@@ -75,7 +75,9 @@ TEMPLATES = [{
 # Database: PostgreSQL when DATABASE_URL is set (Neon / Supabase), SQLite otherwise.
 DATABASES = {
     "default": dj_database_url.parse(env("DATABASE_URL"), conn_max_age=0, ssl_require=False)
-    if env("DATABASE_URL") else {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}
+    if env("DATABASE_URL") else {"ENGINE": "django.db.backends.sqlite3",
+                                 # Vercel can only write to /tmp (temporary!) — set DATABASE_URL for real data
+                                 "NAME": "/tmp/xeonnet.sqlite3" if env("VERCEL") else BASE_DIR / "db.sqlite3"}
 }
 if DATABASES["default"]["ENGINE"].endswith("postgresql"):
     # pooled connection strings (pgbouncer) do not support server-side prepared statements
