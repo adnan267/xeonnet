@@ -154,7 +154,7 @@ def next_number(db, doc_type):
     year = date.today().year
     prefix = f"XN-{TYPE_PREFIX[doc_type]}-{year}-"
     rows = db.execute("SELECT number FROM documents WHERE number LIKE ?", (prefix + "%",)).fetchall()
-    highest = 0
+    highest = data.NUMBER_START.get(doc_type, 1) - 1   # first number to be issued is NUMBER_START
     for row in rows:
         try:
             highest = max(highest, int(row["number"].rsplit("-", 1)[1]))

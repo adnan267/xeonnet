@@ -498,3 +498,6 @@ DOC_DEFAULTS = {
                       "Please mention the invoice number with your payment.\n"
                       "Work remains the property of Xeon Net until the invoice is paid in full."),
 }
+
+# First number issued per document type (invoices start at 0335).
+NUMBER_START = {"invoice": 335, "proposal": 1}
