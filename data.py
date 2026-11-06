@@ -18,7 +18,7 @@ COMPANY = {
     "phone": "+92 300 6666190",
     "phone_raw": "+923006666190",
     "whatsapp": "923006666190",                   # digits only, with country code
-    "address": "Pakistan",                        # TODO: add your full office address
+    "address": "Business Hub Workspace, Faisalabad, Pakistan",
     "hours": "Mon – Sat, 10:00 AM – 7:00 PM",
     "social": {                                   # TODO: add your real links
         "facebook": "",
@@ -473,3 +473,28 @@ def service_art(slug):
 
 
 SERVICE_COUNT = sum(len(t["services"]) for t in SERVICE_TIERS)
+
+
+# ---------------------------------------------------------------- billing
+# Shown at the bottom of invoices / proposals. Leave a value empty to hide that line.
+BANK = {
+    "bank": "",              # TODO: e.g. "Meezan Bank"
+    "account_title": "",     # TODO: account holder name
+    "account_number": "",    # TODO
+    "iban": "",              # TODO
+    "other": "",             # TODO: e.g. "JazzCash / Easypaisa: 0300 6666190"
+}
+
+PAYMENT_METHODS = ["Bank transfer", "Cash", "Cheque", "JazzCash", "Easypaisa", "Card / Online", "Other"]
+
+DOC_DEFAULTS = {
+    "proposal_intro": ("Thank you for the opportunity to work with you. Based on our discussion, "
+                       "this proposal outlines the scope, timeline and investment for your project."),
+    "proposal_terms": ("50% advance to start the work, balance on delivery.\n"
+                       "Prices are valid for the period shown on this proposal.\n"
+                       "Changes outside the agreed scope are quoted separately.\n"
+                       "Domain, hosting and third-party licences are billed at cost unless listed."),
+    "invoice_terms": ("Payment is due by the due date shown above.\n"
+                      "Please mention the invoice number with your payment.\n"
+                      "Work remains the property of Xeon Net until the invoice is paid in full."),
+}

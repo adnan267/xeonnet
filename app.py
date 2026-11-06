@@ -4,117 +4,32 @@ Run:  python app.py      ->  http://127.0.0.1:5000
 Admin panel: /admin
 """
 import os
-import re
-import secrets
-import sqlite3
 from datetime import datetime
-from functools import wraps
 
-from flask import (Flask, abort, flash, g, jsonify, redirect, render_template,
+from flask import (Flask, abort, flash, jsonify, redirect, render_template,
                    request, session, url_for)
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import data
+import db as dbmod
+from billing import bp as billing_bp
+from core import EMAIL_RE, check_csrf, close_db, csrf_token, get_db, login_required
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# On Vercel / serverless the project folder is read-only; only /tmp is writable.
-if os.environ.get("DATABASE_PATH"):
-    DB_PATH = os.environ["DATABASE_PATH"]
-elif os.environ.get("VERCEL"):
-    DB_PATH = "/tmp/xeonnet.db"
-else:
-    DB_PATH = os.path.join(BASE_DIR, "instance", "xeonnet.db")
-os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
 app = Flask(__name__, static_folder=os.path.join(BASE_DIR, "static"),
             template_folder=os.path.join(BASE_DIR, "templates"))
 app.config.update(
     SECRET_KEY=os.environ.get("SECRET_KEY", "change-this-secret-key-in-production"),
-    DATABASE=DB_PATH,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
 )
+app.teardown_appcontext(close_db)
+app.register_blueprint(billing_bp)
 
 # Admin login: set these as environment variables in production
 ADMIN_USER = os.environ.get("ADMIN_USER", "admin")
 ADMIN_PASSWORD_HASH = generate_password_hash(os.environ.get("ADMIN_PASSWORD", "xeonnet@2007"))
-
-EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-
-
-# ---------------------------------------------------------------- database
-def get_db():
-    if "db" not in g:
-        g.db = sqlite3.connect(app.config["DATABASE"])
-        g.db.row_factory = sqlite3.Row
-    return g.db
-
-
-@app.teardown_appcontext
-def close_db(_exc):
-    db = g.pop("db", None)
-    if db is not None:
-        db.close()
-
-
-def init_db():
-    db = sqlite3.connect(app.config["DATABASE"])
-    db.executescript("""
-        CREATE TABLE IF NOT EXISTS messages (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            name       TEXT NOT NULL,
-            email      TEXT NOT NULL,
-            phone      TEXT,
-            service    TEXT,
-            budget     TEXT,
-            message    TEXT NOT NULL,
-            ip         TEXT,
-            is_read    INTEGER NOT NULL DEFAULT 0,
-            created_at TEXT NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS reviews (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            name       TEXT NOT NULL,
-            role       TEXT,
-            rating     INTEGER NOT NULL,
-            text       TEXT NOT NULL,
-            approved   INTEGER NOT NULL DEFAULT 0,
-            created_at TEXT NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS subscribers (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            email      TEXT NOT NULL UNIQUE,
-            created_at TEXT NOT NULL
-        );
-    """)
-    db.commit()
-    db.close()
-
-
-init_db()
-
-
-# ---------------------------------------------------------------- helpers
-def csrf_token():
-    if "_csrf" not in session:
-        session["_csrf"] = secrets.token_urlsafe(32)
-    return session["_csrf"]
-
-
-def check_csrf():
-    token = request.form.get("_csrf", "")
-    if not token or not secrets.compare_digest(token, session.get("_csrf", "")):
-        abort(400, "Invalid form token. Please refresh the page and try again.")
-
-
-def login_required(view):
-    @wraps(view)
-    def wrapped(*args, **kwargs):
-        if not session.get("admin"):
-            return redirect(url_for("admin_login", next=request.path))
-        return view(*args, **kwargs)
-    return wrapped
 
 
 @app.context_processor
@@ -130,6 +45,7 @@ def inject_globals():
         "service_count": data.SERVICE_COUNT,
         "csrf_token": csrf_token,
         "now": datetime.now(),
+        "temp_storage": dbmod.is_temporary_storage(),
     }
 
 
@@ -198,7 +114,7 @@ def team():
 def reviews():
     db = get_db()
     rows = db.execute("SELECT * FROM reviews WHERE approved=1 ORDER BY id DESC").fetchall()
-    avg = db.execute("SELECT AVG(rating) FROM reviews WHERE approved=1").fetchone()[0]
+    avg = db.scalar("SELECT AVG(rating) AS v FROM reviews WHERE approved=1", default=None)
     return render_template("reviews.html", reviews=rows, avg=round(avg, 1) if avg else None)
 
 
@@ -291,7 +207,7 @@ def subscribe():
     if not EMAIL_RE.match(email):
         return jsonify(ok=False, errors=["Please enter a valid email address."]), 422
     db = get_db()
-    db.execute("INSERT OR IGNORE INTO subscribers (email, created_at) VALUES (?, ?)",
+    db.execute("INSERT INTO subscribers (email, created_at) VALUES (?, ?) ON CONFLICT (email) DO NOTHING",
                (email, datetime.now().isoformat(timespec="seconds")))
     db.commit()
     return jsonify(ok=True, message="You are subscribed. Thank you!")
@@ -343,15 +259,15 @@ def admin_dashboard():
         q += " WHERE is_read = 0"
     msgs = db.execute(q + " ORDER BY id DESC").fetchall()
     stats = {
-        "total": db.execute("SELECT COUNT(*) FROM messages").fetchone()[0],
-        "unread": db.execute("SELECT COUNT(*) FROM messages WHERE is_read=0").fetchone()[0],
-        "subscribers": db.execute("SELECT COUNT(*) FROM subscribers").fetchone()[0],
+        "total": db.scalar("SELECT COUNT(*) AS v FROM messages"),
+        "unread": db.scalar("SELECT COUNT(*) AS v FROM messages WHERE is_read=0"),
+        "subscribers": db.scalar("SELECT COUNT(*) AS v FROM subscribers"),
     }
     subs = db.execute("SELECT * FROM subscribers ORDER BY id DESC LIMIT 50").fetchall()
     revs = db.execute("SELECT * FROM reviews ORDER BY approved ASC, id DESC").fetchall()
-    stats["pending_reviews"] = db.execute("SELECT COUNT(*) FROM reviews WHERE approved=0").fetchone()[0]
+    stats["pending_reviews"] = db.scalar("SELECT COUNT(*) AS v FROM reviews WHERE approved=0")
     return render_template("admin/dashboard.html", msgs=msgs, stats=stats, subs=subs,
-                           revs=revs, show=show)
+                           revs=revs, show=show, active="inbox")
 
 
 @app.route("/admin/message/<int:mid>/toggle", methods=["POST"])

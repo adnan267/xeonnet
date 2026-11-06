@@ -1,0 +1,10 @@
+<header class="admin-top">
+  <a href="{{ url_for('home') }}" class="brand"><img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="" width="40" height="25"><span class="brand-text">XEON <em>NET</em></span></a>
+  <nav>
+    <a href="{{ url_for('admin_dashboard') }}" class="{{ 'on' if active == 'inbox' }}">Inbox</a>
+    <a href="{{ url_for('billing.clients_list') }}" class="{{ 'on' if active == 'clients' }}">Clients</a>
+    <a href="{{ url_for('billing.documents_list') }}" class="{{ 'on' if active == 'documents' }}">Proposals &amp; Invoices</a>
+    <a href="{{ url_for('home') }}" target="_blank">View site</a>
+    <a href="{{ url_for('admin_logout') }}">Logout</a>
+  </nav>
+</header>

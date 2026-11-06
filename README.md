@@ -78,3 +78,17 @@ templates/          HTML (Jinja2)
 static/css|js|img   design, script, logo
 instance/xeonnet.db database (khud ban jata hai)
 ```
+
+## Proposals & invoices
+
+Log in at `/admin`, then use **Clients** and **Proposals & Invoices**:
+
+1. Add a client, then create a proposal or invoice (numbers like `XN-INV-2026-0001` are automatic).
+2. **Print / Save as PDF** gives an A4 branded document. **WhatsApp / Email / Copy client link** shares a private page (`/d/<secret>`); clients can accept a proposal there.
+3. Convert an accepted proposal to an invoice in one click, record payments (partial / paid / overdue are automatic).
+4. Put your bank details in `data.py` → `BANK` so they print on invoices.
+
+### Permanent storage (important on Vercel)
+Vercel's disk is temporary. Create a free PostgreSQL database (Neon or Supabase) and add its connection string as the
+`DATABASE_URL` environment variable in Vercel, plus `SECRET_KEY`, `ADMIN_USER` and `ADMIN_PASSWORD`, then redeploy.
+Without `DATABASE_URL` the site uses SQLite (fine on your own server / locally).

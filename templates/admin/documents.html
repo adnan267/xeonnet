@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+{% block title %}Proposals & Invoices{% endblock %}
+{% block content %}
+<div class="admin-stats six">
+  <div><b>{{ stats.invoiced|money }}</b><span>Invoiced</span></div>
+  <div><b>{{ stats.paid|money }}</b><span>Received</span></div>
+  <div><b>{{ stats.outstanding|money }}</b><span>Outstanding</span></div>
+  <div><b>{{ stats.overdue }}</b><span>Overdue invoices</span></div>
+  <div><b>{{ stats.proposals_open }}</b><span>Proposals awaiting reply</span></div>
+  <div><b>{{ stats.proposals_won }}</b><span>Proposals accepted</span></div>
+</div>
+<div class="admin-bar wrap-bar">
+  <h2 class="h4">Proposals &amp; Invoices</h2>
+  <div class="row-actions">
+    <a class="btn btn-sm" href="{{ url_for('billing.document_new', type='proposal') }}"><i data-lucide="file-text"></i> New proposal</a>
+    <a class="btn btn-sm" href="{{ url_for('billing.document_new', type='invoice') }}"><i data-lucide="receipt"></i> New invoice</a>
+  </div>
+</div>
+<form class="filters" method="get">
+  <input type="search" name="q" value="{{ q }}" placeholder="Search number, client, title…">
+  <select name="type" onchange="this.form.submit()">
+    <option value="all">All types</option>
+    <option value="proposal" {{ 'selected' if doc_type == 'proposal' }}>Proposals</option>
+    <option value="invoice" {{ 'selected' if doc_type == 'invoice' }}>Invoices</option>
+  </select>
+  <select name="status" onchange="this.form.submit()">
+    <option value="all">All statuses</option>
+    {% for s in ['draft','sent','accepted','rejected','partial','paid','overdue','cancelled'] %}<option value="{{ s }}" {{ 'selected' if status == s }}>{{ s|capitalize }}</option>{% endfor %}
+  </select>
+  <button class="btn btn-ghost btn-sm">Filter</button>
+</form>
+{% if not bundles %}<p class="muted empty">Nothing here yet. Create a proposal or an invoice with the buttons above (add a client first on the Clients page).</p>{% endif %}
+{% if bundles %}
+<div class="table-wrap"><table class="tbl">
+  <thead><tr><th>Number</th><th>Client</th><th>Date</th><th>Total</th><th>Balance</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for b in bundles %}{% set d = b.doc %}
+    <tr class="clickable" onclick="location.href='{{ url_for('billing.document_view', doc_id=d.id) }}'">
+      <td><a href="{{ url_for('billing.document_view', doc_id=d.id) }}"><b>{{ d.number }}</b></a><br><span class="muted">{{ d.title or d.doc_type|capitalize }}</span></td>
+      <td>{{ d.client.name if d.client else '—' }}{% if d.client and d.client.company %}<br><span class="muted">{{ d.client.company }}</span>{% endif %}</td>
+      <td>{{ d.issue_date|pdate }}</td>
+      <td>{{ b.totals.total|money(d.currency) }}</td>
+      <td>{% if d.doc_type == 'invoice' %}{{ b.totals.balance|money(d.currency) }}{% else %}—{% endif %}</td>
+      <td><span class="pill st-{{ b.status }}">{{ b.status }}</span></td>
+    </tr>
+  {% endfor %}
+  </tbody></table></div>
+{% endif %}
+{% endblock %}
