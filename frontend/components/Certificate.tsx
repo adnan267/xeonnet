@@ -4,6 +4,7 @@ export type CertData = {
   code: string; holder_name: string; doc_type: string; title: string; duration: string;
   start_date: string | null; end_date: string | null; period: string; issued_on: string;
   ceo_signature?: string; hr_signature?: string;
+  qr_off?: boolean;   // preview only: QR is made when the certificate is saved
 };
 
 /** Xeon Net certificate, A4 landscape. Styles live in app/certificate.css. */
@@ -52,7 +53,7 @@ export default function Certificate({ c }: { c: CertData }) {
         <img className="xc-seal" src="/img/cert-seal.svg" alt="Xeon Net seal" />
         <div className="xc-sign"><div className="xc-sig">{c.hr_signature && <img src={c.hr_signature} alt="" />}</div><hr /><b>HR Department</b><small>Xeon Net</small></div>
       </div>
-      <div className="xc-qr"><div className="xc-qr-box"><img src={`/api/public/qr/${c.code}.svg`} alt={`QR code to verify ${c.code}`} /></div><small>Scan to verify</small></div>
+      <div className="xc-qr"><div className="xc-qr-box">{c.code && !c.qr_off ? <img src={`/api/public/qr/${c.code}.svg`} alt={`QR code to verify ${c.code}`} /> : null}</div><small>Scan to verify</small></div>
       <div className="xc-foot"><span>www.xeonnet.site</span><i /><span>info@xeonnet.site</span><i /><span>0300 6666 190</span><i /><span>Business Hub Workspace, Faisalabad</span></div>
     </div>
   );

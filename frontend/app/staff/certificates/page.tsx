@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useMe, useTitle } from "@/components/panel/AppShell";
@@ -36,7 +37,7 @@ export default function Certificates() {
       <Flash msg={msg} onDone={() => setMsg(null)} />
       <div className="toolbar">
         <div className="filters"><input type="search" placeholder="Search name or code…" value={q} onChange={(e) => setQ(e.target.value)} /></div>
-        <div className="row"><a className="btn btn-ghost btn-sm" href="/verify" target="_blank">Public verify page</a>{write && <button className="btn btn-sm" onClick={() => setEdit({ doc_type: types?.[0], issued_on: today() })}><Plus /> Issue new</button>}</div>
+        <div className="row"><a className="btn btn-ghost btn-sm" href="/verify" target="_blank">Public verify page</a>{write && <><button className="btn btn-ghost btn-sm" onClick={() => setEdit({ doc_type: types?.[0], issued_on: today() })}><Plus /> Other document</button><Link className="btn btn-sm" href="/staff/certificates/new"><Plus /> New internship certificate</Link></>}</div>
       </div>
       {rows && !rows.length ? <Empty>Nothing issued yet.</Empty> : (
         <div className="table-wrap"><table className="tbl">

@@ -3,6 +3,7 @@ from datetime import date
 
 from django.conf import settings
 from django.db import IntegrityError, models, transaction
+from django.utils import timezone
 
 
 def token():
@@ -176,7 +177,7 @@ class Credential(models.Model):
     duration = models.CharField(max_length=60, blank=True, help_text="e.g. 3 Months (worked out from the dates if left empty)")
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    issued_on = models.DateField(default=date.today)
+    issued_on = models.DateField(default=timezone.localdate)   # Pakistan date, not UTC
     status = models.CharField(max_length=10, default="valid", choices=[("valid", "Valid"), ("revoked", "Revoked")])
     note = models.CharField(max_length=300, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -227,7 +228,7 @@ class Credential(models.Model):
         # The unique constraint on `code` is the final guard: if two people issue at the same moment,
         # the loser gets an IntegrityError and simply takes the next number.
         for attempt in range(8):
-            self.code = self.next_code(self.doc_type, (self.issued_on or date.today()).year)
+            self.code = self.next_code(self.doc_type, (self.issued_on or timezone.localdate()).year)
             try:
                 with transaction.atomic():
                     return super().save(*args, **kwargs)

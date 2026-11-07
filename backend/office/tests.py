@@ -192,3 +192,16 @@ class CertificateDetails(TestCase):
         self.assertEqual(admin.put("/api/staff/settings", {"ceo_signature": "javascript:alert(1)"}, format="json").status_code, 400)
         ok = admin.put("/api/staff/settings", {"ceo_signature": "data:image/png;base64,iVBORw0KGgo="}, format="json")
         self.assertEqual(ok.status_code, 200)
+
+
+class BlankTemplate(TestCase):
+    def test_blank_gives_next_number_and_today(self):
+        from django.utils import timezone
+        _, hr = staff("hr")
+        d = hr.get("/api/staff/certificates/blank").json()
+        y = timezone.localdate().year
+        self.assertEqual(d["issued_on"], timezone.localdate().isoformat())
+        self.assertTrue(d["next_code"].startswith(f"XN-INT-{y}-"))
+        c = hr.post("/api/staff/certificates", {"holder_name": "Sara", "title": "UI/UX Design", "duration": "2 Months",
+                                                 "start_date": "2026-09-01", "end_date": "2026-10-31"}, format="json").json()
+        self.assertEqual((c["code"], c["issued_on"]), (d["next_code"], d["issued_on"]))

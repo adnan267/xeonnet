@@ -269,6 +269,14 @@ class CredentialViewSet(viewsets.ModelViewSet):
     def types(self, request):
         return Response(Credential.TYPES)
 
+    @action(detail=False, methods=["get"])
+    def blank(self, request):
+        """For the 'new certificate' page: the number the next one will get, today's date and the signatures."""
+        cfg, today = CompanySettings.get(), timezone.localdate()
+        doc_type = request.query_params.get("doc_type") or Credential.TYPES[0]
+        return Response({"next_code": Credential.next_code(doc_type, today.year), "issued_on": today.isoformat(),
+                         "ceo_signature": cfg.ceo_signature, "hr_signature": cfg.hr_signature})
+
     @action(detail=True, methods=["get"])
     def printable(self, request, pk=None):
         """Everything the print page needs, including the signature images."""

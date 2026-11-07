@@ -2,7 +2,7 @@
 import "../../../../certificate.css";
 import { Printer } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Certificate, { type CertData } from "@/components/Certificate";
 import { useTitle } from "@/components/panel/AppShell";
@@ -13,6 +13,16 @@ export default function CertificatePrint() {
   const { id } = useParams<{ id: string }>();
   const [c, , err] = useLoad<CertData & { status: string }>(`staff/certificates/${id}/printable`);
   useTitle(c ? c.code : "Certificate");
+  const auto = useSearchParams().get("print") === "1";
+  const printed = useRef(false);
+  useEffect(() => {
+    // after "Issue & print": open the print window once fonts and the QR image have loaded
+    if (!c || !auto || printed.current) return;
+    printed.current = true;
+    const imgs = Array.from(document.querySelectorAll<HTMLImageElement>(".xc-page img"));
+    Promise.all([document.fonts.ready, ...imgs.map((i) => i.complete ? null : new Promise((r) => { i.onload = i.onerror = r; }))])
+      .then(() => setTimeout(() => window.print(), 300));
+  }, [c, auto]);
   const box = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   useEffect(() => {
