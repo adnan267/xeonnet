@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 
 type S = {
   bank_name: string; account_title: string; account_number: string; iban: string; other_payment: string;
-  invoice_start: number; proposal_start: number; email_enabled: boolean; sms_enabled: boolean;
+  invoice_start: number; proposal_start: number; certificate_start: number; certificate_start_year: number; email_enabled: boolean; sms_enabled: boolean;
   remind_days_before: number; overdue_repeat_days: number; proposal_terms: string; invoice_terms: string;
   providers: { email: string; sms: string };
 };
@@ -52,8 +52,10 @@ export default function Settings() {
         <div className="form-grid">
           <label className="field">First invoice number each year<input type="number" min={1} {...bind("invoice_start")} /></label>
           <label className="field">First proposal number each year<input type="number" min={1} {...bind("proposal_start")} /></label>
+          <label className="field">First internship certificate number<input type="number" min={1} {...bind("certificate_start")} /></label>
+          <label className="field">…in the year<input type="number" min={2020} {...bind("certificate_start_year")} /></label>
         </div>
-        <p className="muted small">Numbers look like XN-INV-2026-0335. If documents already exist, numbering continues after the highest one.</p>
+        <p className="muted small">Numbers look like XN-INV-2026-0335. Certificates look like XN-INT-2026-0101 (first number applies in the year shown; later years start at 0001). If documents already exist, numbering continues after the highest one.</p>
       </section>
       <section className="panel stack">
         <h3 className="panel-title" style={{ margin: 0 }}>Default terms</h3>

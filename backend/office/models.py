@@ -2,7 +2,7 @@ import secrets
 from datetime import date
 
 from django.conf import settings
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 
 
 def token():
@@ -18,6 +18,8 @@ class CompanySettings(models.Model):
     other_payment = models.CharField(max_length=200, blank=True, help_text="e.g. JazzCash / Easypaisa")
     invoice_start = models.PositiveIntegerField(default=335)
     proposal_start = models.PositiveIntegerField(default=335)
+    certificate_start = models.PositiveIntegerField(default=101, help_text="First internship certificate serial in the start year")
+    certificate_start_year = models.PositiveIntegerField(default=2026)
     email_enabled = models.BooleanField(default=True)
     sms_enabled = models.BooleanField(default=False)
     remind_days_before = models.PositiveSmallIntegerField(default=3)
@@ -176,17 +178,40 @@ class Credential(models.Model):
     class Meta:
         ordering = ["-id"]
 
+    TYPE_CODES = {"Internship Completion Certificate": "INT", "Experience Letter": "EXP", "Appointment Letter": "APT",
+                  "Course Certificate": "CRS", "Recommendation Letter": "REC", "Other Document": "DOC"}
+
+    @classmethod
+    def next_code(cls, doc_type, year):
+        """XN-INT-2026-0101: type code + year + serial. Serial continues after the highest existing one."""
+        t = cls.TYPE_CODES.get(doc_type, "DOC")
+        prefix = f"XN-{t}-{year}-"
+        highest = 0
+        if t == "INT":
+            cfg = CompanySettings.get()
+            if year == cfg.certificate_start_year:
+                highest = cfg.certificate_start - 1      # e.g. 100 already issued -> next is 0101
+        for c in cls.objects.filter(code__startswith=prefix).values_list("code", flat=True):
+            try:
+                highest = max(highest, int(c.rsplit("-", 1)[1]))
+            except (ValueError, IndexError):
+                pass
+        return f"{prefix}{highest + 1:04d}"
+
     def save(self, *args, **kwargs):
-        if not self.code:
-            prefix = f"XN-CERT-{date.today().year}-"
-            highest = 0
-            for c in Credential.objects.filter(code__startswith=prefix).values_list("code", flat=True):
-                try:
-                    highest = max(highest, int(c.split("-")[3]))
-                except (ValueError, IndexError):
-                    pass
-            self.code = f"{prefix}{highest + 1:04d}-{secrets.token_hex(2).upper()}"
-        super().save(*args, **kwargs)
+        if self.code:
+            return super().save(*args, **kwargs)
+        # The unique constraint on `code` is the final guard: if two people issue at the same moment,
+        # the loser gets an IntegrityError and simply takes the next number.
+        for attempt in range(8):
+            self.code = self.next_code(self.doc_type, (self.issued_on or date.today()).year)
+            try:
+                with transaction.atomic():
+                    return super().save(*args, **kwargs)
+            except IntegrityError:
+                if attempt == 7:
+                    raise
+                self.code = ""
 
 
 class Project(models.Model):

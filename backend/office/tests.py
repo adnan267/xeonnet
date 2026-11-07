@@ -126,12 +126,45 @@ class ProjectsAndPublicTests(TestCase):
 
     def test_verify_and_contact(self):
         cred = Credential.objects.create(holder_name="Ahmed Raza")
+        self.assertEqual(cred.code, f"XN-INT-{date.today().year}-0101" if date.today().year == 2026 else f"XN-INT-{date.today().year}-0001")
         anon = APIClient()
         r = anon.get(f"/api/public/verify/{cred.code.lower()}")
         self.assertTrue(r.json()["found"])
-        self.assertEqual(anon.get("/api/public/verify/XN-CERT-2026-9999-AAAA").status_code, 404)
+        self.assertEqual(anon.get("/api/public/verify/XN-INT-2026-9999").status_code, 404)
         r = anon.post("/api/public/contact", {"name": "Ali", "email": "a@b.co", "message": "Need a website please"}, format="json")
         self.assertEqual(r.status_code, 200)
         _, hr = staff("hr")
         self.assertEqual(hr.get("/api/staff/messages").status_code, 403)
         self.assertEqual(hr.get("/api/staff/certificates").status_code, 200)
+
+
+class CertificateNumbers(TestCase):
+    def test_sequence_and_uniqueness(self):
+        a = Credential.objects.create(holder_name="A", issued_on=date(2026, 8, 1))
+        b = Credential.objects.create(holder_name="B", issued_on=date(2026, 8, 2))
+        self.assertEqual((a.code, b.code), ("XN-INT-2026-0101", "XN-INT-2026-0102"))
+        e = Credential.objects.create(holder_name="C", doc_type="Experience Letter", issued_on=date(2026, 8, 3))
+        self.assertEqual(e.code, "XN-EXP-2026-0001")
+        n = Credential.objects.create(holder_name="D", issued_on=date(2027, 1, 5))
+        self.assertEqual(n.code, "XN-INT-2027-0001")
+        b.holder_name = "B2"; b.save()
+        self.assertEqual(Credential.objects.get(pk=b.pk).code, "XN-INT-2026-0102")   # never changes
+        self.assertEqual(len({c.code for c in Credential.objects.all()}), 4)
+
+    def test_collision_takes_next_number(self):
+        from unittest import mock
+        Credential.objects.create(holder_name="A", issued_on=date(2026, 8, 1))
+        real = Credential.next_code
+        calls = []
+        def stale(doc_type, year):
+            calls.append(1)
+            return "XN-INT-2026-0101" if len(calls) == 1 else real(doc_type, year)
+        with mock.patch.object(Credential, "next_code", side_effect=stale):
+            c = Credential.objects.create(holder_name="B", issued_on=date(2026, 8, 2))
+        self.assertEqual(c.code, "XN-INT-2026-0102")
+
+    def test_verify_by_number(self):
+        c = Credential.objects.create(holder_name="Ali", issued_on=date(2026, 8, 1))
+        r = APIClient().get("/api/public/verify/xn-int-2026-0101")
+        self.assertEqual((r.status_code, r.json()["holder_name"], r.json()["code"]), (200, "Ali", c.code))
+        self.assertEqual(APIClient().get(f"/api/public/qr/{c.code}.svg").status_code, 200)

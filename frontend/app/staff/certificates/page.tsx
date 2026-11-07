@@ -48,6 +48,7 @@ export default function Certificates() {
               <td>{c.doc_type}{c.title && <><br /><span className="muted small">{c.title}</span></>}</td>
               <td><Status s={c.status} /></td>
               <td><div className="row" style={{ ["--gap" as string]: "6px 14px" }}>
+                <a className="link small" href={`/staff/certificates/${c.id}/print`} target="_blank">Print PDF</a>
                 <button className="link small" onClick={() => setShow(c)}>QR &amp; link</button>
                 {write && <><button className="link small" onClick={() => setEdit(c)}>Edit</button><button className="link small" onClick={() => toggle(c)}>{c.status === "valid" ? "Revoke" : "Restore"}</button><button className="link danger small" onClick={() => del(c)}>Delete</button></>}
               </div></td>
@@ -66,7 +67,7 @@ export default function Certificates() {
               <label className="field">Date of issue<input type="date" value={edit.issued_on || ""} onChange={(e) => setEdit({ ...edit, issued_on: e.target.value })} /></label>
             </div>
             <label className="field">Remarks <small>(shown publicly)</small><input value={edit.note || ""} onChange={(e) => setEdit({ ...edit, note: e.target.value })} /></label>
-            <p className="muted small">Only these details are public. A unique code is created automatically.</p>
+            <p className="muted small">Only these details are public. A unique number (like XN-INT-2026-0101) is created automatically and cannot be changed or repeated.</p>
             <div className="row"><button className="btn">{edit.id ? "Save" : "Issue & create code"}</button><button type="button" className="btn btn-ghost" onClick={() => setEdit(null)}>Cancel</button></div>
           </form>
         </Modal>

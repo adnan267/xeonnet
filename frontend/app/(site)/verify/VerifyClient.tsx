@@ -30,7 +30,7 @@ export default function VerifyClient({ initial = "" }: { initial?: string }) {
       <div className="wrap stack" style={{ maxWidth: 760, ["--gap" as string]: "24px" }}>
         <form onSubmit={go} className="card card-pad stack">
           <label className="field">Certificate / document code
-            <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="e.g. XN-CERT-2026-0001-7F3A" required maxLength={40} autoComplete="off" style={{ letterSpacing: ".06em", fontSize: 17 }} />
+            <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="e.g. XN-INT-2026-0101" required maxLength={40} autoComplete="off" style={{ letterSpacing: ".06em", fontSize: 17 }} />
           </label>
           <div className="row"><button className="btn" disabled={busy}>Verify <ShieldCheck /></button><span className="muted small">The code is printed on the document, or scan its QR code.</span></div>
         </form>
