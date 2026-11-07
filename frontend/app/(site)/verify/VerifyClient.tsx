@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { fdate } from "@/lib/format";
 
-type Result = { found: boolean; code: string; holder_name?: string; doc_type?: string; title?: string; period?: string; issued_on?: string; status?: string; note?: string };
+type Result = { found: boolean; code: string; holder_name?: string; doc_type?: string; title?: string; duration?: string; start_date?: string | null; end_date?: string | null; period?: string; issued_on?: string; status?: string; note?: string };
 
 export default function VerifyClient({ initial = "" }: { initial?: string }) {
   const router = useRouter();
@@ -45,7 +45,10 @@ export default function VerifyClient({ initial = "" }: { initial?: string }) {
             </div>
             {res.found && (
               <dl className="sum" style={{ marginTop: 8 }}>
-                {[["Issued to", res.holder_name], ["Document", res.doc_type], ["Program / role", res.title], ["Period", res.period], ["Date of issue", fdate(res.issued_on)], ["Remarks", res.note], ["Code", res.code]]
+                {[["Certificate No.", res.code], ["Issued to", res.holder_name], ["Document", res.doc_type],
+                  [res.doc_type?.startsWith("Internship") ? "Internship field" : "Program / role", res.title], ["Duration", res.duration],
+                  ["Period", res.start_date && res.end_date ? `${fdate(res.start_date)} – ${fdate(res.end_date)}` : res.period],
+                  ["Date of issue", fdate(res.issued_on)], ["Status", res.status === "valid" ? "Valid" : "Revoked"], ["Remarks", res.note]]
                   .filter(([, v]) => v).map(([k, v]) => <div key={k} style={{ borderTop: "1px solid var(--line)", paddingTop: 10 }}><dt>{k}</dt><dd style={{ textAlign: "right", wordBreak: "break-all" }}>{v}</dd></div>)}
               </dl>
             )}

@@ -1,0 +1,84 @@
+/* =====================================================================
+   Xeon Net internship certificate — A4 landscape (297 × 210 mm)
+   Shared by the staff print page and the standalone master template.
+   Everything is sized in mm/pt so screen, PNG and PDF match exactly.
+   ===================================================================== */
+@font-face { font-family: "XN Cinzel"; src: url("/fonts/cert/cinzel-600.woff2") format("woff2"); font-weight: 600; font-display: block; }
+@font-face { font-family: "XN Cinzel"; src: url("/fonts/cert/cinzel-700.woff2") format("woff2"); font-weight: 700; font-display: block; }
+@font-face { font-family: "XN Script"; src: url("/fonts/cert/great-vibes-400.woff2") format("woff2"); font-weight: 400; font-display: block; }
+@font-face { font-family: "XN Sans"; src: url("/fonts/cert/montserrat-500.woff2") format("woff2"); font-weight: 500; font-display: block; }
+@font-face { font-family: "XN Sans"; src: url("/fonts/cert/montserrat-600.woff2") format("woff2"); font-weight: 600; font-display: block; }
+@font-face { font-family: "XN Sans"; src: url("/fonts/cert/montserrat-700.woff2") format("woff2"); font-weight: 700; font-display: block; }
+@font-face { font-family: "XN Serif"; src: url("/fonts/cert/cormorant-500.woff2") format("woff2"); font-weight: 500; font-display: block; }
+@font-face { font-family: "XN Serif"; src: url("/fonts/cert/cormorant-600.woff2") format("woff2"); font-weight: 600; font-display: block; }
+@font-face { font-family: "XN Serif"; src: url("/fonts/cert/cormorant-500-italic.woff2") format("woff2"); font-weight: 500; font-style: italic; font-display: block; }
+
+.xc-page {
+  --xc-orange: #E5701A; --xc-ink: #141414; --xc-text: #2b2b2b; --xc-soft: #6b6560; --xc-silver: #d4d6da;
+  position: relative; width: 297mm; height: 210mm; overflow: hidden; background: #fff; color: var(--xc-text);
+  font-family: "XN Serif", Georgia, serif; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  box-sizing: border-box; text-rendering: geometricPrecision;
+}
+.xc-page *, .xc-page *::before, .xc-page *::after { box-sizing: border-box; }
+.xc-page :where(p) { margin: 0; }
+.xc-geo { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* top-left: certificate number + issue date */
+.xc-meta { position: absolute; left: 17mm; top: 13mm; display: grid; gap: 2.4mm; font-family: "XN Sans", sans-serif; }
+.xc-meta div { display: grid; gap: .6mm; min-height: 8.5mm; }
+.xc-meta small { font-size: 6.4pt; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--xc-soft); }
+.xc-meta b { font-size: 10pt; font-weight: 700; letter-spacing: .06em; color: var(--xc-ink); }
+
+/* centred content column */
+.xc-main { position: absolute; left: 50mm; right: 50mm; top: 11mm; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.xc-logo { height: 27mm; width: auto; display: block; }
+.xc-title { margin-top: 4.5mm; font-family: "XN Cinzel", serif; font-weight: 700; font-size: 31pt; line-height: 1; letter-spacing: .16em; color: var(--xc-ink); padding-left: .16em; }
+.xc-sub { margin-top: 3mm; display: flex; align-items: center; gap: 4mm; font-family: "XN Sans", sans-serif; font-weight: 700; font-size: 10.5pt; letter-spacing: .42em; color: var(--xc-orange); padding-left: .42em; }
+.xc-sub::before, .xc-sub::after { content: ""; width: 16mm; height: .35mm; background: var(--xc-orange); }
+.xc-lead { margin-top: 8mm; font-style: italic; font-weight: 500; font-size: 15pt; color: var(--xc-soft); }
+.xc-name { height: 21mm; display: flex; align-items: center; justify-content: center; font-family: "XN Script", cursive; font-size: 46pt; line-height: 1; color: var(--xc-ink); white-space: nowrap; }
+.xc-orn { display: flex; align-items: center; gap: 2.2mm; margin: .5mm 0 4.5mm; }
+.xc-orn i { width: 18mm; height: .3mm; background: linear-gradient(90deg, transparent, var(--xc-orange)); }
+.xc-orn i + b + i { background: linear-gradient(90deg, var(--xc-orange), transparent); }
+.xc-orn b { width: 2mm; height: 2mm; background: var(--xc-orange); transform: rotate(45deg); }
+.xc-body { font-weight: 500; font-size: 14pt; line-height: 1.38; color: var(--xc-text); max-width: 178mm; }
+.xc-focus { margin-top: 2.2mm; min-height: 7mm; font-family: "XN Sans", sans-serif; font-weight: 700; font-size: 12.5pt; letter-spacing: .02em; color: var(--xc-ink); }
+.xc-focus em { font-style: normal; color: var(--xc-orange); padding: 0 2.2mm; }
+.xc-period { margin-top: 1.6mm; min-height: 6.5mm; font-weight: 600; font-size: 13pt; color: var(--xc-text); }
+.xc-period span { font-family: "XN Sans", sans-serif; font-weight: 600; font-size: 7.6pt; letter-spacing: .2em; text-transform: uppercase; color: var(--xc-soft); margin-right: 2mm; }
+.xc-close { margin-top: 3.6mm; font-style: italic; font-weight: 500; font-size: 12.5pt; line-height: 1.42; color: #4a4642; }
+
+/* bottom: signatures + seal */
+.xc-sign-row { position: absolute; left: 52mm; right: 52mm; top: 153mm; height: 33mm; display: grid; grid-template-columns: 1fr 31mm 1fr; align-items: end; column-gap: 14mm; }
+.xc-sign { text-align: center; font-family: "XN Sans", sans-serif; }
+.xc-sign .xc-sig { height: 15mm; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 1mm; }
+.xc-sign .xc-sig img { max-height: 15mm; max-width: 52mm; object-fit: contain; }
+.xc-sign hr { border: 0; height: .3mm; background: var(--xc-ink); margin: 0 4mm 2mm; }
+.xc-sign b { display: block; font-size: 9.6pt; font-weight: 700; color: var(--xc-ink); letter-spacing: .02em; }
+.xc-sign small { display: block; margin-top: .6mm; font-size: 8pt; font-weight: 500; color: var(--xc-soft); letter-spacing: .04em; }
+.xc-seal { width: 31mm; height: 31mm; align-self: center; filter: drop-shadow(0 .5mm .7mm rgba(90, 60, 5, .35)); }
+
+/* bottom-right: QR area (white with quiet zone, filled by the software) */
+.xc-qr { position: absolute; right: 15mm; top: 154mm; width: 29mm; text-align: center; font-family: "XN Sans", sans-serif; }
+.xc-qr .xc-qr-box { width: 25mm; height: 25mm; margin: 0 auto; background: #fff; padding: 1.2mm; border-radius: 1.2mm; box-shadow: 0 0 0 .25mm #e6e3df; }
+.xc-qr .xc-qr-box img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.xc-qr small { display: block; margin-top: 1.6mm; font-size: 6.2pt; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--xc-soft); }
+
+/* footer */
+.xc-foot { position: absolute; left: 58mm; right: 58mm; bottom: 7.5mm; display: flex; justify-content: center; align-items: center; gap: 3.2mm; font-family: "XN Sans", sans-serif; font-size: 7.4pt; font-weight: 500; color: #4a4642; white-space: nowrap; }
+.xc-foot i { width: 1.1mm; height: 1.1mm; border-radius: 50%; background: var(--xc-orange); }
+
+/* screen preview inside the staff panel: scale the page to fit */
+.xc-screen { width: 100%; overflow: hidden; }
+.xc-screen .xc-scale { transform-origin: 0 0; }
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  .xc-screen { overflow: visible; }
+  .xc-screen .xc-scale { transform: none !important; height: auto !important; }
+  .xc-page { box-shadow: none !important; }
+}
+/* own landscape page so the rest of the site keeps A4 portrait */
+.xc-page { page: xcert; }
+@page xcert { size: A4 landscape; margin: 0; }
+.xc-shadow { width: 297mm; box-shadow: 0 20px 60px -24px rgba(0,0,0,.5); }
+@media print { .xc-shadow { box-shadow: none; } }

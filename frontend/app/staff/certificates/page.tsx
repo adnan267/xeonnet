@@ -6,7 +6,7 @@ import { Empty, Flash, Modal, Status, useLoad } from "@/components/panel/ui";
 import { api } from "@/lib/api";
 import { fdate, today } from "@/lib/format";
 
-type Cred = { id: number; code: string; holder_name: string; doc_type: string; title: string; period: string; issued_on: string; status: string; note: string };
+type Cred = { id: number; code: string; holder_name: string; doc_type: string; title: string; duration: string; start_date: string | null; end_date: string | null; period: string; issued_on: string; status: string; note: string };
 
 export default function Certificates() {
   useTitle("Certificates & documents");
@@ -45,7 +45,7 @@ export default function Certificates() {
             <tr key={c.id}>
               <td><code>{c.code}</code></td>
               <td><b>{c.holder_name}</b><br /><span className="muted small">{fdate(c.issued_on)}</span></td>
-              <td>{c.doc_type}{c.title && <><br /><span className="muted small">{c.title}</span></>}</td>
+              <td>{c.doc_type}{(c.title || c.duration) && <><br /><span className="muted small">{[c.title, c.duration].filter(Boolean).join(" · ")}</span></>}</td>
               <td><Status s={c.status} /></td>
               <td><div className="row" style={{ ["--gap" as string]: "6px 14px" }}>
                 <a className="link small" href={`/staff/certificates/${c.id}/print`} target="_blank">Print PDF</a>
@@ -62,8 +62,10 @@ export default function Certificates() {
             <label className="field">Name of person *<input required value={edit.holder_name || ""} onChange={(e) => setEdit({ ...edit, holder_name: e.target.value })} /></label>
             <label className="field">Document type<select value={edit.doc_type} onChange={(e) => setEdit({ ...edit, doc_type: e.target.value })}>{types?.map((t) => <option key={t}>{t}</option>)}</select></label>
             <div className="form-grid">
-              <label className="field">Program / role<input value={edit.title || ""} placeholder="Web Development Internship" onChange={(e) => setEdit({ ...edit, title: e.target.value })} /></label>
-              <label className="field">Period<input value={edit.period || ""} placeholder="1 Aug – 31 Oct 2026" onChange={(e) => setEdit({ ...edit, period: e.target.value })} /></label>
+              <label className="field">{edit.doc_type?.startsWith("Internship") ? "Internship field" : "Program / role"}<input value={edit.title || ""} placeholder="Full Stack Web Development" onChange={(e) => setEdit({ ...edit, title: e.target.value })} /></label>
+              <label className="field">Duration <small>(empty = from dates)</small><input value={edit.duration || ""} placeholder="3 Months" onChange={(e) => setEdit({ ...edit, duration: e.target.value })} /></label>
+              <label className="field">Start date<input type="date" value={edit.start_date || ""} onChange={(e) => setEdit({ ...edit, start_date: e.target.value || null, period: "" })} /></label>
+              <label className="field">End date<input type="date" value={edit.end_date || ""} onChange={(e) => setEdit({ ...edit, end_date: e.target.value || null, period: "" })} /></label>
               <label className="field">Date of issue<input type="date" value={edit.issued_on || ""} onChange={(e) => setEdit({ ...edit, issued_on: e.target.value })} /></label>
             </div>
             <label className="field">Remarks <small>(shown publicly)</small><input value={edit.note || ""} onChange={(e) => setEdit({ ...edit, note: e.target.value })} /></label>

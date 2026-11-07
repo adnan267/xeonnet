@@ -28,3 +28,11 @@ export function waLink(phone: string, text: string) {
 
 export const today = () => new Date().toISOString().slice(0, 10);
 export const addDays = (n: number) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+
+/** "1 August 2026" — the long style used on certificates. */
+export function longDate(value?: string | null) {
+  if (!value) return "";
+  const d = new Date(value.length <= 10 ? value + "T00:00:00" : value);
+  if (isNaN(d.getTime())) return value;
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+}

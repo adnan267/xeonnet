@@ -20,6 +20,9 @@ class CompanySettings(models.Model):
     proposal_start = models.PositiveIntegerField(default=335)
     certificate_start = models.PositiveIntegerField(default=101, help_text="First internship certificate serial in the start year")
     certificate_start_year = models.PositiveIntegerField(default=2026)
+    # Signature images printed on certificates (PNG with transparent background, stored as data URLs)
+    ceo_signature = models.TextField(blank=True)
+    hr_signature = models.TextField(blank=True)
     email_enabled = models.BooleanField(default=True)
     sms_enabled = models.BooleanField(default=False)
     remind_days_before = models.PositiveSmallIntegerField(default=3)
@@ -170,6 +173,9 @@ class Credential(models.Model):
     doc_type = models.CharField(max_length=80, default=TYPES[0])
     title = models.CharField(max_length=200, blank=True)
     period = models.CharField(max_length=120, blank=True)
+    duration = models.CharField(max_length=60, blank=True, help_text="e.g. 3 Months (worked out from the dates if left empty)")
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
     issued_on = models.DateField(default=date.today)
     status = models.CharField(max_length=10, default="valid", choices=[("valid", "Valid"), ("revoked", "Revoked")])
     note = models.CharField(max_length=300, blank=True)
@@ -198,7 +204,24 @@ class Credential(models.Model):
                 pass
         return f"{prefix}{highest + 1:04d}"
 
+    @staticmethod
+    def work_out_duration(start, end):
+        days = (end - start).days + 1
+        if days <= 0:
+            return ""
+        if days >= 28:
+            n = max(1, round(days / 30.44))
+            return f"{n} Month{'s' if n > 1 else ''}"
+        n = max(1, round(days / 7))
+        return f"{n} Week{'s' if n > 1 else ''}"
+
     def save(self, *args, **kwargs):
+        if self.start_date and self.end_date:
+            if not self.duration:
+                self.duration = self.work_out_duration(self.start_date, self.end_date)
+            if not self.period:
+                f = lambda d: f"{d.day} {d:%B %Y}"
+                self.period = f"{f(self.start_date)} – {f(self.end_date)}"
         if self.code:
             return super().save(*args, **kwargs)
         # The unique constraint on `code` is the final guard: if two people issue at the same moment,

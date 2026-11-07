@@ -168,3 +168,27 @@ class CertificateNumbers(TestCase):
         r = APIClient().get("/api/public/verify/xn-int-2026-0101")
         self.assertEqual((r.status_code, r.json()["holder_name"], r.json()["code"]), (200, "Ali", c.code))
         self.assertEqual(APIClient().get(f"/api/public/qr/{c.code}.svg").status_code, 200)
+
+
+class CertificateDetails(TestCase):
+    def test_duration_period_and_print_data(self):
+        c = Credential.objects.create(holder_name="Ali", title="Full Stack Web Development",
+                                      start_date=date(2026, 8, 1), end_date=date(2026, 10, 31), issued_on=date(2026, 10, 31))
+        self.assertEqual((c.duration, c.period), ("3 Months", "1 August 2026 – 31 October 2026"))
+        w = Credential.objects.create(holder_name="B", start_date=date(2026, 8, 1), end_date=date(2026, 8, 21))
+        self.assertEqual(w.duration, "3 Weeks")
+        r = APIClient().get(f"/api/public/verify/{c.code}").json()
+        self.assertEqual((r["duration"], r["title"], r["status"]), ("3 Months", "Full Stack Web Development", "valid"))
+        _, hr = staff("hr")
+        sig = "data:image/png;base64,iVBORw0KGgo="
+        CompanySettings.objects.update_or_create(pk=1, defaults={"ceo_signature": sig})
+        d = hr.get(f"/api/staff/certificates/{c.id}/printable").json()
+        self.assertEqual((d["code"], d["ceo_signature"], d["hr_signature"]), (c.code, sig, ""))
+        bad = hr.post("/api/staff/certificates", {"holder_name": "X", "start_date": "2026-09-01", "end_date": "2026-08-01"}, format="json")
+        self.assertEqual(bad.status_code, 400)
+
+    def test_signature_upload_is_checked(self):
+        _, admin = staff("admin")
+        self.assertEqual(admin.put("/api/staff/settings", {"ceo_signature": "javascript:alert(1)"}, format="json").status_code, 400)
+        ok = admin.put("/api/staff/settings", {"ceo_signature": "data:image/png;base64,iVBORw0KGgo="}, format="json")
+        self.assertEqual(ok.status_code, 200)

@@ -8,8 +8,24 @@ type S = {
   bank_name: string; account_title: string; account_number: string; iban: string; other_payment: string;
   invoice_start: number; proposal_start: number; certificate_start: number; certificate_start_year: number; email_enabled: boolean; sms_enabled: boolean;
   remind_days_before: number; overdue_repeat_days: number; proposal_terms: string; invoice_terms: string;
+  ceo_signature: string; hr_signature: string;
   providers: { email: string; sms: string };
 };
+
+/** Reads an image file and shrinks it (max 900 px wide) so it stays small; keeps transparency. */
+function readSignature(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 900 / img.width), cv = document.createElement("canvas");
+      cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+      cv.getContext("2d")!.drawImage(img, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(img.src); resolve(cv.toDataURL("image/png"));
+    };
+    img.onerror = () => reject(new Error("That file is not an image."));
+    img.src = URL.createObjectURL(file);
+  });
+}
 
 export default function Settings() {
   useTitle("Settings");
@@ -56,6 +72,27 @@ export default function Settings() {
           <label className="field">…in the year<input type="number" min={2020} {...bind("certificate_start_year")} /></label>
         </div>
         <p className="muted small">Numbers look like XN-INV-2026-0335. Certificates look like XN-INT-2026-0101 (first number applies in the year shown; later years start at 0001). If documents already exist, numbering continues after the highest one.</p>
+      </section>
+      <section className="panel stack">
+        <h3 className="panel-title" style={{ margin: 0 }}>Certificate signatures <span className="muted small">(printed on every certificate)</span></h3>
+        <p className="muted small">Upload each signature as a PNG with a transparent or white background. It is printed as it is: not redrawn or recoloured.</p>
+        <div className="form-grid">
+          {([["ceo_signature", "CEO (Muhammad Adnan)"], ["hr_signature", "HR Department"]] as const).map(([k, label]) => (
+            <div key={k} className="field">{label}
+              <div style={{ height: 90, display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", borderRadius: 10, border: "1px solid var(--line)" }}>
+                {f[k] ? <img src={f[k]} alt={`${label} signature`} style={{ maxHeight: 76, maxWidth: "90%" }} /> : <span className="muted small" style={{ color: "#777" }}>No signature yet</span>}
+              </div>
+              <div className="row">
+                <input type="file" accept="image/png,image/jpeg,image/webp" onChange={async (e) => {
+                  const file = e.target.files?.[0]; if (!file) return;
+                  try { setF({ ...f, [k]: await readSignature(file) }); } catch (err) { setMsg({ ok: false, text: (err as Error).message }); }
+                }} />
+                {f[k] && <button type="button" className="link danger small" onClick={() => setF({ ...f, [k]: "" })}>Remove</button>}
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="muted small">Press <b>Save settings</b> below after choosing the files.</p>
       </section>
       <section className="panel stack">
         <h3 className="panel-title" style={{ margin: 0 }}>Default terms</h3>

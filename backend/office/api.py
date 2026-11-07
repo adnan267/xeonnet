@@ -269,6 +269,13 @@ class CredentialViewSet(viewsets.ModelViewSet):
     def types(self, request):
         return Response(Credential.TYPES)
 
+    @action(detail=True, methods=["get"])
+    def printable(self, request, pk=None):
+        """Everything the print page needs, including the signature images."""
+        cfg = CompanySettings.get()
+        return Response({**s.CredentialSerializer(self.get_object()).data,
+                         "ceo_signature": cfg.ceo_signature, "hr_signature": cfg.hr_signature})
+
 
 def visible_projects(user):
     qs = Project.objects.select_related("client", "manager").prefetch_related("members")

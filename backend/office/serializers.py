@@ -1,3 +1,4 @@
+import re
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers
@@ -142,15 +143,23 @@ class PublicDocumentSerializer(DocumentSerializer):
 class CredentialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Credential
-        fields = ["id", "code", "holder_name", "doc_type", "title", "period", "issued_on", "status", "note",
-                  "created_at"]
+        fields = ["id", "code", "holder_name", "doc_type", "title", "duration", "start_date", "end_date", "period",
+                  "issued_on", "status", "note", "created_at"]
         read_only_fields = ["code"]
+
+    def validate(self, data):
+        start = data.get("start_date", getattr(self.instance, "start_date", None))
+        end = data.get("end_date", getattr(self.instance, "end_date", None))
+        if start and end and end < start:
+            raise serializers.ValidationError({"end_date": "End date is before the start date."})
+        return data
 
 
 class PublicCredentialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Credential
-        fields = ["code", "holder_name", "doc_type", "title", "period", "issued_on", "status", "note"]
+        fields = ["code", "holder_name", "doc_type", "title", "duration", "start_date", "end_date", "period",
+                  "issued_on", "status", "note"]
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -217,6 +226,17 @@ class SettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompanySettings
         exclude = ["id"]
+
+    def _signature(self, v):
+        if v and (not re.match(r"^data:image/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$", v) or len(v) > 900_000):
+            raise serializers.ValidationError("Upload a PNG, JPG or WebP image under 600 KB.")
+        return v
+
+    def validate_ceo_signature(self, v):
+        return self._signature(v)
+
+    def validate_hr_signature(self, v):
+        return self._signature(v)
 
 
 class TeamSerializer(serializers.ModelSerializer):
