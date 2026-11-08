@@ -205,3 +205,38 @@ class BlankTemplate(TestCase):
         c = hr.post("/api/staff/certificates", {"holder_name": "Sara", "title": "UI/UX Design", "duration": "2 Months",
                                                  "start_date": "2026-09-01", "end_date": "2026-10-31"}, format="json").json()
         self.assertEqual((c["code"], c["issued_on"]), (d["next_code"], d["issued_on"]))
+
+
+class MobileApp(TestCase):
+    def test_token_login_push_and_events(self):
+        from unittest import mock
+        from accounts.models import AppToken
+        u, _ = staff("sales")
+        r = APIClient().post("/api/auth/app/login", {"email": u.email, "password": "pass12345!", "device_name": "Pixel",
+                                                    "platform": "android"}, format="json")
+        self.assertEqual(r.status_code, 200, r.content)
+        key = r.json()["token"]
+        self.assertTrue(key.startswith("xn_"))
+        self.assertFalse(AppToken.objects.filter(key_hash=key).exists())   # only the hash is stored
+        app = APIClient(HTTP_AUTHORIZATION=f"Bearer {key}")
+        self.assertEqual(app.get("/api/auth/me").json()["email"], u.email)
+        self.assertEqual(app.get("/api/staff/clients").status_code, 200)        # no CSRF needed
+        self.assertEqual(app.post("/api/auth/app/push", {"push_token": "nope"}, format="json").status_code, 400)
+        self.assertEqual(app.post("/api/auth/app/push", {"push_token": "ExponentPushToken[abc123]"}, format="json").status_code, 200)
+        sent = []
+        def fake(req, timeout=0):
+            import json as j
+            body = j.loads(req.data.decode()); sent.extend(body)
+            class R:
+                def __enter__(s): return s
+                def __exit__(s, *a): return False
+                def read(s): return j.dumps({"data": [{"status": "ok"} for _ in body]}).encode()
+            return R()
+        with mock.patch("urllib.request.urlopen", side_effect=fake):
+            APIClient().post("/api/public/contact", {"name": "Zain", "email": "z@x.com", "message": "Need a website please"}, format="json")
+        self.assertEqual(sent[0]["to"], "ExponentPushToken[abc123]")
+        self.assertIn("Zain", sent[0]["title"])
+        self.assertEqual(app.post("/api/auth/app/logout").status_code, 200)
+        self.assertEqual(APIClient(HTTP_AUTHORIZATION=f"Bearer {key}").get("/api/auth/me").status_code, 401)
+        bad = APIClient().post("/api/auth/app/login", {"email": u.email, "password": "wrong"}, format="json")
+        self.assertEqual(bad.status_code, 400)

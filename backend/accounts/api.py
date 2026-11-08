@@ -134,3 +134,43 @@ def set_password(request):
     user.save()
     login(request, user)
     return Response(me_payload(user))
+
+
+# ---------------------------------------------------------------- mobile app
+@api_view(["POST"])
+@permission_classes([AllowAny])
+@throttle_classes([LoginThrottle])
+def app_login(request):
+    from . import tokens
+    user = authenticate(request, email=str(request.data.get("email", "")).strip(), password=request.data.get("password", ""))
+    if not user:
+        return Response({"detail": "Incorrect email or password."}, status=400)
+    key = tokens.issue(user, str(request.data.get("device_name", "")), str(request.data.get("platform", "")))
+    return Response({"token": key, "user": me_payload(user)})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def app_logout(request):
+    from . import tokens
+    tok = tokens.current(request)
+    if tok:
+        tok.delete()
+    return Response({"ok": True})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def app_push(request):
+    """The app sends its Expo push token here after the user allows notifications ('' turns them off)."""
+    import re
+    from . import tokens
+    tok = tokens.current(request)
+    if not tok:
+        return Response({"detail": "Only the mobile app can register for notifications."}, status=400)
+    value = str(request.data.get("push_token", "")).strip()
+    if value and not re.fullmatch(r"Expo(nent)?PushToken\[[A-Za-z0-9_\-]+\]", value):
+        return Response({"detail": "That is not a valid push token."}, status=400)
+    tok.push_token = value
+    tok.save(update_fields=["push_token"])
+    return Response({"ok": True})

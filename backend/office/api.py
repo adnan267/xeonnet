@@ -312,8 +312,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
             text = str(request.data.get("text", "")).strip()
             if not text:
                 raise ValidationError({"text": "Write an update."})
-            ProjectUpdate.objects.create(project=project, author=request.user, text=text[:4000],
-                                         visible_to_client=bool(request.data.get("visible_to_client", True)))
+            upd = ProjectUpdate.objects.create(project=project, author=request.user, text=text[:4000],
+                                               visible_to_client=bool(request.data.get("visible_to_client", True)))
+            if upd.visible_to_client and project.visible_to_client and project.client.user_id:
+                from notify import push
+                push.safe(push.send, [project.client.user], f"Update on {project.title}", text[:200],
+                          {"type": "project", "id": project.id})
         return Response(s.UpdateSerializer(project.updates.select_related("author")[:50], many=True).data)
 
 
@@ -339,7 +343,18 @@ class TaskViewSet(viewsets.ModelViewSet):
         project = serializer.validated_data["project"]
         if not visible_projects(self.request.user).filter(pk=project.pk).exists():
             raise PermissionDenied("You are not on this project.")
-        serializer.save()
+        self._tell_assignee(serializer.save(), None)
+
+    def perform_update(self, serializer):
+        before = serializer.instance.assignee_id
+        self._tell_assignee(serializer.save(), before)
+
+    def _tell_assignee(self, task, before):
+        if task.assignee_id and task.assignee_id != before and task.assignee_id != self.request.user.id:
+            from notify import push
+            due = f" · due {task.due_date:%d %b}" if task.due_date else ""
+            push.safe(push.send, [task.assignee], "New task for you", f"{task.title} ({task.project.title}){due}",
+                      {"type": "task", "id": task.id})
 
 
 class MessageViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
@@ -443,6 +458,9 @@ def contact(request):
                            service=str(d.get("service", ""))[:120], budget=str(d.get("budget", ""))[:60],
                            message=msg[:5000], ip=request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")[0].strip() or
                            request.META.get("REMOTE_ADDR"))
+    from notify import push
+    push.safe(push.send, push.staff_with("inbox"), f"New message from {name[:60]}",
+              (str(d.get("service", "")) + ": " if d.get("service") else "") + msg[:180], {"type": "message"})
     return Response({"ok": True, "message": "Thank you! We will get back to you within one working day."})
 
 
@@ -512,6 +530,12 @@ def public_document(request, token):
     return Response(s.PublicDocumentSerializer(doc).data)
 
 
+def _accepted(doc):
+    from notify import push
+    push.safe(push.send, push.staff_with("documents"), f"Proposal {doc.number} accepted",
+              f"{doc.client.name} accepted {doc.title or 'the proposal'}.", {"type": "document", "id": doc.id})
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 @throttle_classes([PublicThrottle])
@@ -520,6 +544,7 @@ def public_accept(request, token):
     if doc.status == "sent":
         doc.status, doc.accepted_at = "accepted", timezone.now()
         doc.save(update_fields=["status", "accepted_at", "updated_at"])
+        _accepted(doc)
     return Response(s.PublicDocumentSerializer(doc_qs().get(pk=doc.pk)).data)
 
 
@@ -575,6 +600,7 @@ class PortalAccept(APIView):
         if doc.status == "sent":
             doc.status, doc.accepted_at = "accepted", timezone.now()
             doc.save(update_fields=["status", "accepted_at", "updated_at"])
+            _accepted(doc)
         return Response(s.PublicDocumentSerializer(doc_qs().get(pk=doc.pk)).data)
 
 

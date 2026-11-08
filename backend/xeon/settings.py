@@ -108,7 +108,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 WHITENOISE_USE_FINDERS = True
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework.authentication.SessionAuthentication"],
+    # website: session cookie (+CSRF) · mobile app: "Authorization: Bearer xn_..."
+    "DEFAULT_AUTHENTICATION_CLASSES": ["accounts.tokens.AppTokenAuthentication",
+                                       "rest_framework.authentication.SessionAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
     "DEFAULT_PAGINATION_CLASS": None,
@@ -151,6 +153,9 @@ SMS_HTTP_BODY = env("SMS_HTTP_BODY")                     # optional, for POST: e
 SMS_DEFAULT_COUNTRY = env("SMS_DEFAULT_COUNTRY", "PK")
 
 CRON_SECRET = env("CRON_SECRET")
+# Mobile push notifications go through Expo's push service (optional access token for extra security)
+EXPO_PUSH_ACCESS_TOKEN = env("EXPO_PUSH_ACCESS_TOKEN")
+PUSH_ENABLED = env_bool("PUSH_ENABLED", True)
 
 LOGGING = {
     "version": 1,

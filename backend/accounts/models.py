@@ -60,3 +60,20 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.display_name
+
+
+class AppToken(models.Model):
+    """A login from the mobile app (one per phone). Only a hash of the token is stored."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="app_tokens")
+    key_hash = models.CharField(max_length=64, unique=True)
+    device_name = models.CharField(max_length=120, blank=True)
+    platform = models.CharField(max_length=20, blank=True)          # android | ios
+    push_token = models.CharField(max_length=200, blank=True)       # ExponentPushToken[...]
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_seen = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-last_seen"]
+
+    def __str__(self):
+        return f"{self.user} · {self.device_name or self.platform}"

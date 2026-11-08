@@ -54,6 +54,9 @@ urlpatterns = [
     path("api/auth/password/change", auth.change_password),
     path("api/auth/password/forgot", auth.forgot_password),
     path("api/auth/password/set", auth.set_password),
+    path("api/auth/app/login", auth.app_login),
+    path("api/auth/app/logout", auth.app_logout),
+    path("api/auth/app/push", auth.app_push),
     # public website
     path("api/public/contact", api.contact),
     path("api/public/reviews", api.reviews),

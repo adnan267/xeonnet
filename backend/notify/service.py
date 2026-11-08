@@ -28,6 +28,10 @@ def doc_link(doc):
 def _deliver(kind, client, subject, text, sms, document=None, cta=None):
     cfg = CompanySettings.get()
     results = []
+    if client and client.user_id:   # the client's phone, if they use the Xeon Net app
+        from . import push
+        data = {"type": "document", "id": document.id} if document else {"type": "portal"}
+        push.safe(push.send, [client.user], subject, (sms or subject).replace(f"{COMPANY}: ", ""), data)
     if client and client.email and client.notify_email and cfg.email_enabled:
         html = render_to_string("notify/email.html", {
             "subject": subject, "paragraphs": [escape(p) for p in text.split("\n\n")],
