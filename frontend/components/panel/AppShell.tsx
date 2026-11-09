@@ -9,7 +9,8 @@ import { api, ApiError } from "@/lib/api";
 
 export type Me = {
   id: number; email: string; name: string; first_name: string; last_name: string; role: string; phone: string; job_title: string;
-  is_client: boolean; client?: { id: number; name: string; company: string } | null;
+  is_client: boolean; is_remote?: boolean; client?: { id: number; name: string; company: string } | null;
+  worker?: { status: string; position: string } | null;
   modules?: Record<string, { read: boolean; write: boolean }>;
 };
 export type NavItem = { href: string; label: string; icon: React.ComponentType<{ size?: number }>; module?: string };
@@ -24,9 +25,12 @@ export function useTitle(t: string) {
   useEffect(() => { set(t); document.title = `${t} | Xeon Net`; }, [t, set]);
 }
 
-const ROLE_LABEL: Record<string, string> = { admin: "Admin", sales: "Sales", accounts: "Accounts", hr: "HR", staff: "Team member", client: "Client" };
+const ROLE_LABEL: Record<string, string> = { admin: "Admin", sales: "Sales", accounts: "Accounts", hr: "HR", staff: "Team member", client: "Client", remote: "Remote worker" };
 
-export default function AppShell({ area, nav, children }: { area: "staff" | "portal"; nav: NavItem[]; children: React.ReactNode }) {
+/** Where each kind of user belongs after logging in. */
+export const homeFor = (m: { is_client: boolean; is_remote?: boolean }) => (m.is_client ? "/portal" : m.is_remote ? "/remote" : "/staff");
+
+export default function AppShell({ area, nav, children }: { area: "staff" | "portal" | "remote"; nav: NavItem[]; children: React.ReactNode }) {
   const router = useRouter();
   const path = usePathname();
   const [me, setMe] = useState<Me | null>(null);
@@ -35,8 +39,7 @@ export default function AppShell({ area, nav, children }: { area: "staff" | "por
 
   useEffect(() => {
     api<Me>("auth/me").then((m) => {
-      if (area === "staff" && m.is_client) return router.replace("/portal");
-      if (area === "portal" && !m.is_client) return router.replace("/staff");
+      if (homeFor(m) !== `/${area}`) return router.replace(homeFor(m));
       setMe(m);
     }).catch((e) => {
       if (e instanceof ApiError && (e.status === 401 || e.status === 403)) router.replace(`/login?next=${encodeURIComponent(path)}`);
@@ -46,8 +49,11 @@ export default function AppShell({ area, nav, children }: { area: "staff" | "por
 
   if (!me) return <div className="auth-wrap"><p className="muted">Loading…</p></div>;
   const can = (m: string, write = false) => !!me.modules?.[m]?.[write ? "write" : "read"];
-  const items = nav.filter((n) => !n.module || area === "portal" || can(n.module));
-  const on = (href: string) => (href === `/${area}` ? path === href : path.startsWith(href));
+  const items = nav.filter((n) => !n.module || area !== "staff" || can(n.module));
+  // highlight the most specific menu item that matches the page
+  const match = (href: string) => (href === `/${area}` ? path === href : path === href || path.startsWith(href + "/"));
+  const best = items.filter((n) => match(n.href)).sort((a, b) => b.href.length - a.href.length)[0]?.href;
+  const on = (href: string) => href === best;
 
   async function logout() {
     await api("auth/logout", { body: {} }).catch(() => {});
@@ -65,7 +71,7 @@ export default function AppShell({ area, nav, children }: { area: "staff" | "por
             <div className="grow" />
             <div className="who">
               <b>{me.name}</b>
-              <span className="muted small">{me.is_client ? me.client?.company || me.client?.name : `${ROLE_LABEL[me.role] || me.role}${me.job_title ? " · " + me.job_title : ""}`}</span>
+              <span className="muted small">{me.is_client ? me.client?.company || me.client?.name : me.is_remote ? `Remote worker${me.worker?.position ? " · " + me.worker.position : ""}` : `${ROLE_LABEL[me.role] || me.role}${me.job_title ? " · " + me.job_title : ""}`}</span>
               <div className="row" style={{ ["--gap" as string]: "8px" }}>
                 <Link href={`/${area}/profile`} className="btn btn-ghost btn-xs">Profile</Link>
                 <button className="btn btn-ghost btn-xs" onClick={logout}><LogOut size={14} /> Logout</button>

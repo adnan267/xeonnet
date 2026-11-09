@@ -100,9 +100,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .icon-box svg { width: 22px; height: 22px; }
 .pill { display: inline-flex; align-items: center; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); white-space: nowrap; }
 .st-sent, .st-active, .st-doing { background: var(--info-bg); color: var(--info); border-color: transparent; }
-.st-accepted, .st-paid, .st-done, .st-valid, .st-ok { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
-.st-partial, .st-review, .st-planning, .st-hold { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
-.st-overdue, .st-rejected, .st-cancelled, .st-revoked, .st-failed { background: var(--bad-bg); color: var(--bad); border-color: transparent; }
+.st-accepted, .st-paid, .st-done, .st-valid, .st-ok, .st-approved { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
+.st-partial, .st-review, .st-planning, .st-hold, .st-pending { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+.st-overdue, .st-rejected, .st-cancelled, .st-revoked, .st-failed, .st-suspended { background: var(--bad-bg); color: var(--bad); border-color: transparent; }
 
 /* ---------- photos ---------- */
 .photo { position: relative; overflow: hidden; border-radius: var(--radius); background: linear-gradient(135deg, var(--surface-2), var(--bg-2)); }
@@ -371,3 +371,19 @@ input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--brand); 
 }
 .photo img { color: transparent; font-size: 0; }
 
+
+.err-text { color: var(--bad); font-size: 13px; font-weight: 500; }
+
+/* remote work */
+.coin-card { background: var(--grad); color: var(--brand-ink); border-radius: var(--radius); padding: 24px; display: grid; gap: 6px; }
+.coin-card b { font-size: clamp(30px, 4vw, 42px); font-weight: 800; line-height: 1.1; }
+.coin-card .muted { color: inherit; opacity: .8; }
+.task-card { display: grid; gap: 10px; }
+.coins { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; color: var(--accent); white-space: nowrap; }
+.coins svg { width: 16px; height: 16px; }
+.plus { color: var(--ok); font-weight: 700; } .minus { color: var(--bad); font-weight: 700; }
+.pre { white-space: pre-wrap; }
+.subtabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+.subtabs a { padding: 7px 14px; border-radius: 999px; font-weight: 600; font-size: 14px; color: var(--muted); }
+.subtabs a.on { background: var(--chip); color: var(--accent); }
+.subtabs a .pill { margin-left: 6px; padding: 0 7px; }

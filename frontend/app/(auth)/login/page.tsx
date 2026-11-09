@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { homeFor } from "@/components/panel/AppShell";
 import { api } from "@/lib/api";
 
 function LoginForm() {
@@ -12,7 +13,7 @@ function LoginForm() {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const home = (me: { is_client: boolean }) => (next.startsWith("/") ? next : me.is_client ? "/portal" : "/staff");
+  const home = (me: { is_client: boolean; is_remote?: boolean }) => (next.startsWith("/") ? next : homeFor(me));
   useEffect(() => { api("auth/me").then((me) => router.replace(home(me))).catch(() => {}); }, []); // eslint-disable-line
 
   async function submit(e: React.FormEvent) {

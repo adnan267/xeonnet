@@ -16,9 +16,9 @@ export function useLoad<T>(path: string | null, deps: unknown[] = []) {
   return [data, load, error, setData] as const;
 }
 
-export function Status({ s }: { s: string }) {
-  const labels: Record<string, string> = { doing: "in progress", todo: "to do", active: "in progress", hold: "on hold", review: "in review", done: "done" };
-  return <span className={`pill st-${s}`}>{labels[s] || s}</span>;
+export function Status({ s, label }: { s: string; label?: string }) {
+  const labels: Record<string, string> = { doing: "in progress", todo: "to do", active: "in progress", hold: "on hold", review: "in review", done: "done", pending: "waiting" };
+  return <span className={`pill st-${s}`}>{label || labels[s] || s}</span>;
 }
 
 export function Modal({ title, onClose, children, wide }: { title: string; onClose: () => void; children: React.ReactNode; wide?: boolean }) {

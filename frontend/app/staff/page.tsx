@@ -11,6 +11,7 @@ type Dash = {
   projects?: { active: number };
   my_tasks: { id: number; title: string; project: number; project_title: string; status: string; due_date: string | null; priority: string }[];
   certificates?: number;
+  remote?: { to_review: number; withdrawals: number; workers: number };
 };
 
 export default function Dashboard() {
@@ -37,6 +38,8 @@ export default function Dashboard() {
         </div>
       )}
       <div className="kpis">
+        {d?.remote && can("remote") && <Link href="/staff/remote" className="kpi"><b style={{ color: d.remote.to_review ? "var(--accent)" : undefined }}>{d.remote.to_review}</b><span>Remote work to review · {d.remote.workers} workers</span></Link>}
+        {d?.remote && can("payouts") && <Link href="/staff/remote/withdrawals" className="kpi"><b style={{ color: d.remote.withdrawals ? "var(--accent)" : undefined }}>{d.remote.withdrawals}</b><span>Withdrawals to pay</span></Link>}
         {d?.inbox && <Link href="/staff/inbox" className="kpi"><b>{d.inbox.unread}</b><span>Unread messages · {d.inbox.pending_reviews} reviews to approve</span></Link>}
         {d?.projects && <Link href="/staff/projects" className="kpi"><b>{d.projects.active}</b><span>Active projects</span></Link>}
         {d?.certificates !== undefined && <Link href="/staff/certificates" className="kpi"><b>{d.certificates}</b><span>Valid certificates</span></Link>}

@@ -71,6 +71,11 @@ class DashboardView(APIView):
         data["my_tasks"] = s.TaskSerializer(my, many=True).data
         if can(u, "certificates"):
             data["certificates"] = Credential.objects.filter(status="valid").count()
+        if can(u, "remote") or can(u, "payouts"):
+            from remote.models import Submission, Withdrawal, Worker
+            data["remote"] = {"to_review": Submission.objects.filter(status="pending").count(),
+                              "withdrawals": Withdrawal.objects.filter(status="pending").count(),
+                              "workers": Worker.objects.filter(status="active").count()}
         return Response(data)
 
 
@@ -79,7 +84,7 @@ class PeopleView(APIView):
     permission_classes = [IsStaffMember]
 
     def get(self, request):
-        qs = User.objects.filter(is_active=True).exclude(role="client").order_by("first_name", "email")
+        qs = User.objects.filter(is_active=True).exclude(role__in=("client", "remote")).order_by("first_name", "email")
         return Response(s.UserMini(qs, many=True).data)
 
 
@@ -385,7 +390,7 @@ class TeamViewSet(viewsets.ModelViewSet):
     permission_classes = [IsStaffMember, Module.of("team")]
 
     def get_queryset(self):
-        return User.objects.exclude(role="client").order_by("-is_active", "first_name", "email")
+        return User.objects.exclude(role__in=("client", "remote")).order_by("-is_active", "first_name", "email")
 
     def destroy(self, request, *args, **kwargs):
         u = self.get_object()
@@ -525,7 +530,7 @@ def qr(request, code):
 @permission_classes([AllowAny])
 def public_document(request, token):
     doc = get_object_or_404(doc_qs(), token=token)
-    if doc.status == "draft" and not (request.user.is_authenticated and request.user.role != "client"):
+    if doc.status == "draft" and not (request.user.is_authenticated and request.user.role not in ("client", "remote")):
         return Response({"detail": "Not found"}, status=404)
     return Response(s.PublicDocumentSerializer(doc).data)
 

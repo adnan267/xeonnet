@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "accounts",
     "office",
     "notify",
+    "remote",
 ]
 
 MIDDLEWARE = [

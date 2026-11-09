@@ -55,7 +55,7 @@ def staff_with(module, exclude=None):
     """Active staff who can see a panel module (e.g. 'inbox')."""
     from django.contrib.auth import get_user_model
     from accounts.permissions import can
-    return [u for u in get_user_model().objects.filter(is_active=True).exclude(role="client")
+    return [u for u in get_user_model().objects.filter(is_active=True).exclude(role__in=("client", "remote"))
             if can(u, module) and u != exclude]
 
 

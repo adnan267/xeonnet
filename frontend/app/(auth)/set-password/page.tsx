@@ -1,6 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
+import { homeFor } from "@/components/panel/AppShell";
 import { api } from "@/lib/api";
 
 function SetPasswordForm() {
@@ -15,8 +16,8 @@ function SetPasswordForm() {
     if (pw !== pw2) return setErr("The two passwords do not match.");
     setBusy(true); setErr("");
     try {
-      const me = await api<{ is_client: boolean }>("auth/password/set", { body: { uid: p.get("uid"), token: p.get("token"), password: pw } });
-      router.replace(me.is_client ? "/portal" : "/staff");
+      const me = await api<{ is_client: boolean; is_remote?: boolean }>("auth/password/set", { body: { uid: p.get("uid"), token: p.get("token"), password: pw } });
+      router.replace(homeFor(me));
     } catch (e) { setErr((e as Error).message); setBusy(false); }
   }
   return (

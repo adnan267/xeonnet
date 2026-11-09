@@ -2,6 +2,10 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
 
+# People who log in but are not Xeon Net staff
+NON_STAFF_ROLES = ("client", "remote")
+
+
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -35,6 +39,7 @@ class User(AbstractUser):
         HR = "hr", "HR"
         STAFF = "staff", "Team member"
         CLIENT = "client", "Client"
+        REMOTE = "remote", "Remote worker"
 
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.STAFF)
@@ -53,6 +58,14 @@ class User(AbstractUser):
     @property
     def is_client(self):
         return self.role == self.Role.CLIENT
+
+    @property
+    def is_remote(self):
+        return self.role == self.Role.REMOTE
+
+    @property
+    def is_staff_member(self):
+        return self.role not in NON_STAFF_ROLES
 
     @property
     def display_name(self):

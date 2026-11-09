@@ -19,11 +19,15 @@ MODULES = {
     "team":         ({"hr"},                                     set()),
     "settings":     (set(),                                      set()),
     "notifications": ({"accounts", "sales"},                     set()),
+    "remote":       ({"hr", "accounts", "sales"},                {"hr"}),        # remote jobs, tasks, reviews
+    "payouts":      ({"hr", "accounts"},                         {"accounts"}),  # coin withdrawals
 }
 
 
 def can(user, module, write=False):
     if not user or not user.is_authenticated or not user.is_active:
+        return False
+    if user.role in ("client", "remote"):
         return False
     if user.is_superuser or user.role == "admin":
         return True
@@ -58,4 +62,12 @@ class IsClient(BasePermission):
 class IsStaffMember(BasePermission):
     def has_permission(self, request, view):
         u = request.user
-        return bool(u and u.is_authenticated and u.is_active and u.role != "client")
+        return bool(u and u.is_authenticated and u.is_active and u.role not in ("client", "remote"))
+
+
+class IsRemoteWorker(BasePermission):
+    message = "This area is for Xeon Net remote workers."
+
+    def has_permission(self, request, view):
+        u = request.user
+        return bool(u and u.is_authenticated and u.is_active and u.role == "remote" and hasattr(u, "worker"))

@@ -6,6 +6,7 @@ from rest_framework.routers import DefaultRouter
 from accounts import api as auth
 from notify.views import cron_daily
 from office import api
+from remote import api as remote
 
 router = DefaultRouter(trailing_slash=False)
 router.register("clients", api.ClientViewSet, basename="clients")
@@ -18,6 +19,11 @@ router.register("messages", api.MessageViewSet, basename="messages")
 router.register("reviews", api.ReviewViewSet, basename="reviews")
 router.register("subscribers", api.SubscriberViewSet, basename="subscribers")
 router.register("team", api.TeamViewSet, basename="team")
+router.register("remote/positions", remote.PositionViewSet, basename="remote-positions")
+router.register("remote/tasks", remote.TaskViewSet, basename="remote-tasks")
+router.register("remote/submissions", remote.SubmissionViewSet, basename="remote-submissions")
+router.register("remote/workers", remote.WorkerViewSet, basename="remote-workers")
+router.register("remote/withdrawals", remote.WithdrawalViewSet, basename="remote-withdrawals")
 
 admin.site.site_header = "Xeon Net — database admin"
 
@@ -72,6 +78,17 @@ urlpatterns = [
     path("api/portal/documents/<int:pk>/accept", api.PortalAccept.as_view()),
     path("api/portal/projects", api.PortalProjects.as_view()),
     path("api/portal/projects/<int:pk>", api.PortalProjects.as_view()),
+    # remote work: website + worker panel
+    path("api/public/remote", remote.public_info),
+    path("api/public/remote/join", remote.signup),
+    path("api/remote/home", remote.WorkerHome.as_view()),
+    path("api/remote/tasks", remote.WorkerTasks.as_view()),
+    path("api/remote/tasks/<int:pk>", remote.WorkerTasks.as_view()),
+    path("api/remote/submissions", remote.WorkerSubmissions.as_view()),
+    path("api/remote/wallet", remote.WorkerWallet.as_view()),
+    path("api/remote/profile", remote.WorkerProfile.as_view()),
+    path("api/staff/remote/overview", remote.RemoteOverview.as_view()),
+    path("api/staff/remote/settings", remote.RemoteSettingsView.as_view()),
     # staff panel
     path("api/staff/dashboard", api.DashboardView.as_view()),
     path("api/staff/people", api.PeopleView.as_view()),

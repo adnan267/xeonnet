@@ -1,5 +1,5 @@
 "use client";
-import { Award, Bell, CheckSquare, FileText, FolderKanban, Inbox, LayoutDashboard, Settings, Users, UsersRound } from "lucide-react";
+import { Award, Bell, Briefcase, CheckSquare, FileText, FolderKanban, Inbox, LayoutDashboard, Settings, Users, UsersRound, Wallet } from "lucide-react";
 import AppShell, { type NavItem } from "@/components/panel/AppShell";
 
 const nav: NavItem[] = [
@@ -9,6 +9,8 @@ const nav: NavItem[] = [
   { href: "/staff/projects", label: "Projects", icon: FolderKanban, module: "projects" },
   { href: "/staff/tasks", label: "My tasks", icon: CheckSquare, module: "tasks" },
   { href: "/staff/certificates", label: "Certificates", icon: Award, module: "certificates" },
+  { href: "/staff/remote", label: "Remote work", icon: Briefcase, module: "remote" },
+  { href: "/staff/remote/withdrawals", label: "Payouts", icon: Wallet, module: "payouts" },
   { href: "/staff/inbox", label: "Inbox & reviews", icon: Inbox, module: "inbox" },
   { href: "/staff/notifications", label: "Emails & SMS", icon: Bell, module: "notifications" },
   { href: "/staff/team", label: "Team", icon: UsersRound, module: "team" },

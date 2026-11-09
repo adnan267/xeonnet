@@ -252,6 +252,8 @@ class TeamSerializer(serializers.ModelSerializer):
     def validate_role(self, v):
         if v == "client":
             raise serializers.ValidationError("Client logins are created from the Clients page.")
+        if v == "remote":
+            raise serializers.ValidationError("Remote workers join from the Careers page on the website.")
         return v
 
     def create(self, data):
