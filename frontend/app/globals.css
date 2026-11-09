@@ -217,7 +217,7 @@ label.field, .field { display: grid; gap: 6px; font-size: 14px; font-weight: 600
 input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text); font-size: 15px; transition: border-color .2s, box-shadow .2s; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--chip); }
 textarea { resize: vertical; min-height: 96px; }
-input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--brand); }
+input[type="checkbox"] { width: 18px; height: 18px; flex: none; padding: 0; accent-color: var(--brand); }
 .check { display: flex; gap: 10px; align-items: center; font-weight: 600; font-size: 14px; color: var(--text); }
 .form-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
@@ -387,3 +387,35 @@ input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--brand); 
 .subtabs a { padding: 7px 14px; border-radius: 999px; font-weight: 600; font-size: 14px; color: var(--muted); }
 .subtabs a.on { background: var(--chip); color: var(--accent); }
 .subtabs a .pill { margin-left: 6px; padding: 0 7px; }
+
+/* online learning */
+.course-card { overflow: hidden; display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s; }
+.course-card:hover { transform: translateY(-3px); box-shadow: 0 18px 40px -24px rgba(0,0,0,.45); }
+.course-card img { width: 100%; height: 170px; object-fit: cover; display: block; }
+.course-card .row svg { vertical-align: -2px; }
+.accent { color: var(--accent); }
+.syllabus { display: grid; gap: 4px; }
+.syllabus h4 { margin: 14px 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.lesson-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 14.5px; }
+.lesson-row .grow { flex: 1; }
+button.lesson-row { width: 100%; text-align: left; cursor: pointer; color: inherit; font: inherit; }
+.lesson-row.on { border-color: var(--brand); background: var(--chip); }
+.lesson-row .done { color: var(--ok); }
+.player { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .player { grid-template-columns: 1fr; } }
+.q-card { display: grid; gap: 10px; }
+.q-opt { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; cursor: pointer; background: var(--surface); }
+.q-opt.on { border-color: var(--brand); background: var(--chip); }
+.q-opt input { margin-top: 3px; accent-color: var(--brand); }
+.timer { position: sticky; top: 70px; z-index: 5; }
+
+/* header: 11 menu items — tighten, then switch to the menu button earlier */
+@media (max-width: 1480px) { .nav { gap: 14px; font-size: 14px; } }
+@media (max-width: 1320px) {
+  .nav { display: none; }
+  .menu-btn { display: grid; }
+  .mobile-nav.open { display: flex; flex-direction: column; gap: 4px; padding: 12px 24px 24px; border-top: 1px solid var(--line); background: var(--bg); }
+  .mobile-nav a { padding: 12px 4px; font-weight: 600; border-bottom: 1px solid var(--line); }
+}
+input[type="radio"] { width: 18px; height: 18px; flex: none; padding: 0; accent-color: var(--brand); box-shadow: none; }
+.q-opt span { flex: 1; }

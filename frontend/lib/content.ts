@@ -57,7 +57,7 @@ export function photo(key: string, w = 1200) {
 
 export const nav: [string, string][] = [
   ["/", "Home"], ["/about", "About"], ["/services", "Services"], ["/portfolio", "Portfolio"],
-  ["/brands", "Our Brands"], ["/clients", "Clients"], ["/team", "Team"], ["/reviews", "Reviews"], ["/careers", "Careers"], ["/contact", "Contact"],
+  ["/brands", "Our Brands"], ["/clients", "Clients"], ["/team", "Team"], ["/reviews", "Reviews"], ["/courses", "Courses"], ["/careers", "Careers"], ["/contact", "Contact"],
 ];
 
 /** Photo key for a portfolio category. */

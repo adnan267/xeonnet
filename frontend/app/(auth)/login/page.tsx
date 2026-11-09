@@ -13,7 +13,7 @@ function LoginForm() {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const home = (me: { is_client: boolean; is_remote?: boolean }) => (next.startsWith("/") ? next : homeFor(me));
+  const home = (me: { is_client: boolean; is_remote?: boolean; is_student?: boolean }) => (next.startsWith("/") ? next : homeFor(me));
   useEffect(() => { api("auth/me").then((me) => router.replace(home(me))).catch(() => {}); }, []); // eslint-disable-line
 
   async function submit(e: React.FormEvent) {

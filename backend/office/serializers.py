@@ -254,6 +254,8 @@ class TeamSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Client logins are created from the Clients page.")
         if v == "remote":
             raise serializers.ValidationError("Remote workers join from the Careers page on the website.")
+        if v == "student":
+            raise serializers.ValidationError("Students sign up from the Courses page on the website.")
         return v
 
     def create(self, data):

@@ -81,9 +81,10 @@ const GEO = `<svg class="xc-geo" viewBox="0 0 297 210" preserveAspectRatio="none
 
 export function certificateHtml(c: Cert, sig: { ceo?: string; hr?: string } = {}, opts: { preview?: boolean } = {}) {
   const intern = c.doc_type.startsWith("Internship");
+  const course = c.doc_type.startsWith("Course");
   const start = longDate(c.start_date), end = longDate(c.end_date);
   const focus = `${esc(c.title)}${c.title && c.duration ? "<em>•</em>" : ""}${esc(c.duration)}`;
-  const period = start || end ? `<span>${intern ? "Internship Period" : "Period"}</span>${esc(start)} – ${esc(end)}` : esc(c.period);
+  const period = start || end ? `<span>${intern ? "Internship Period" : course ? "Course Period" : "Period"}</span>${esc(start)} – ${esc(end)}` : esc(c.period);
   const qr = c.code && !opts.preview ? `<img alt="" src="data:image/svg+xml;utf8,${encodeURIComponent(qrSvg(verifyUrl(c.code)))}">` : "";
   const img = (src?: string) => (src ? `<img src="${src}" alt="">` : "");
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=1123">
@@ -92,15 +93,15 @@ export function certificateHtml(c: Cert, sig: { ceo?: string; hr?: string } = {}
 <div class="xc-meta"><div><small>Certificate No.</small><b>${esc(c.code)}</b></div><div><small>Issue Date</small><b>${esc(longDate(c.issued_on))}</b></div></div>
 <div class="xc-main">
 <img class="xc-logo" src="${LOGO}" alt="Xeon Net">
-<p class="xc-title">${intern ? "INTERNSHIP" : esc(c.doc_type.toUpperCase())}</p>
-<p class="xc-sub">${intern ? "COMPLETION CERTIFICATE" : "XEON NET"}</p>
+<p class="xc-title">${intern ? "INTERNSHIP" : course ? "COURSE" : esc(c.doc_type.toUpperCase())}</p>
+<p class="xc-sub">${intern || course ? "COMPLETION CERTIFICATE" : "XEON NET"}</p>
 <p class="xc-lead">This certificate is proudly presented to</p>
 <p class="xc-name">${esc(c.holder_name)}</p>
 <div class="xc-orn"><i></i><b></b><i></i></div>
-<p class="xc-body">${intern ? "In recognition of the successful completion of an internship with Xeon Net, with a focus on" : `Issued by Xeon Net${c.title ? " for" : "."}`}</p>
+<p class="xc-body">${intern ? "In recognition of the successful completion of an internship with Xeon Net, with a focus on" : course ? "In recognition of successfully completing the Xeon Net online course and passing its final assessment in" : `Issued by Xeon Net${c.title ? " for" : "."}`}</p>
 <p class="xc-focus">${focus}</p>
 <p class="xc-period">${period}</p>
-<p class="xc-close">${intern ? "Throughout the program, the intern demonstrated commitment, professionalism and a strong willingness to learn.<br>We wish them continued success in their professional journey." : "We wish them continued success in their professional journey."}</p>
+<p class="xc-close">${course ? "The student demonstrated commitment, a strong willingness to learn and the knowledge required by the course.<br>We wish them continued success in their professional journey." : intern ? "Throughout the program, the intern demonstrated commitment, professionalism and a strong willingness to learn.<br>We wish them continued success in their professional journey." : "We wish them continued success in their professional journey."}</p>
 </div>
 <div class="xc-sign-row">
 <div class="xc-sign"><div class="xc-sig">${img(sig.ceo)}</div><hr><b>Muhammad Adnan</b><small>CEO · Xeon Net</small></div>

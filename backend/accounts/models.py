@@ -3,7 +3,7 @@ from django.db import models
 
 
 # People who log in but are not Xeon Net staff
-NON_STAFF_ROLES = ("client", "remote")
+NON_STAFF_ROLES = ("client", "remote", "student")
 
 
 class UserManager(BaseUserManager):
@@ -40,6 +40,7 @@ class User(AbstractUser):
         STAFF = "staff", "Team member"
         CLIENT = "client", "Client"
         REMOTE = "remote", "Remote worker"
+        STUDENT = "student", "Student"
 
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.STAFF)
@@ -62,6 +63,10 @@ class User(AbstractUser):
     @property
     def is_remote(self):
         return self.role == self.Role.REMOTE
+
+    @property
+    def is_student(self):
+        return self.role == self.Role.STUDENT
 
     @property
     def is_staff_member(self):

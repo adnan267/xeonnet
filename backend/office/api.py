@@ -28,6 +28,7 @@ from . import serializers as s
 from .models import (Client, CompanySettings, Credential, Document, Message, Payment, Project, ProjectUpdate, Review,
                      Subscriber, Task)
 from .money import effective_status, totals
+from accounts.models import NON_STAFF_ROLES
 
 User = get_user_model()
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -76,6 +77,10 @@ class DashboardView(APIView):
             data["remote"] = {"to_review": Submission.objects.filter(status="pending").count(),
                               "withdrawals": Withdrawal.objects.filter(status="pending").count(),
                               "workers": Worker.objects.filter(status="active").count()}
+        if can(u, "fees") or can(u, "learning"):
+            from learn.models import Enrollment, FeePayment
+            data["learning"] = {"fees_to_check": FeePayment.objects.filter(status="pending").count(),
+                                "studying": Enrollment.objects.filter(status="active").count()}
         return Response(data)
 
 
@@ -84,7 +89,7 @@ class PeopleView(APIView):
     permission_classes = [IsStaffMember]
 
     def get(self, request):
-        qs = User.objects.filter(is_active=True).exclude(role__in=("client", "remote")).order_by("first_name", "email")
+        qs = User.objects.filter(is_active=True).exclude(role__in=NON_STAFF_ROLES).order_by("first_name", "email")
         return Response(s.UserMini(qs, many=True).data)
 
 
@@ -390,7 +395,7 @@ class TeamViewSet(viewsets.ModelViewSet):
     permission_classes = [IsStaffMember, Module.of("team")]
 
     def get_queryset(self):
-        return User.objects.exclude(role__in=("client", "remote")).order_by("-is_active", "first_name", "email")
+        return User.objects.exclude(role__in=NON_STAFF_ROLES).order_by("-is_active", "first_name", "email")
 
     def destroy(self, request, *args, **kwargs):
         u = self.get_object()
@@ -530,7 +535,7 @@ def qr(request, code):
 @permission_classes([AllowAny])
 def public_document(request, token):
     doc = get_object_or_404(doc_qs(), token=token)
-    if doc.status == "draft" and not (request.user.is_authenticated and request.user.role not in ("client", "remote")):
+    if doc.status == "draft" and not (request.user.is_authenticated and request.user.role not in NON_STAFF_ROLES):
         return Response({"detail": "Not found"}, status=404)
     return Response(s.PublicDocumentSerializer(doc).data)
 

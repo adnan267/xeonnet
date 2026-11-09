@@ -16,7 +16,7 @@ function SetPasswordForm() {
     if (pw !== pw2) return setErr("The two passwords do not match.");
     setBusy(true); setErr("");
     try {
-      const me = await api<{ is_client: boolean; is_remote?: boolean }>("auth/password/set", { body: { uid: p.get("uid"), token: p.get("token"), password: pw } });
+      const me = await api<{ is_client: boolean; is_remote?: boolean; is_student?: boolean }>("auth/password/set", { body: { uid: p.get("uid"), token: p.get("token"), password: pw } });
       router.replace(homeFor(me));
     } catch (e) { setErr((e as Error).message); setBusy(false); }
   }

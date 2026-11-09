@@ -26,7 +26,7 @@ class LoginThrottle(SimpleRateThrottle):
 def me_payload(user):
     data = {"id": user.id, "email": user.email, "name": user.display_name, "first_name": user.first_name,
             "last_name": user.last_name, "role": user.role, "phone": user.phone, "job_title": user.job_title,
-            "is_client": user.is_client, "is_remote": user.is_remote}
+            "is_client": user.is_client, "is_remote": user.is_remote, "is_student": user.is_student}
     if user.is_remote:
         w = getattr(user, "worker", None)
         data["worker"] = {"status": w.status, "position": w.position.title if w and w.position else ""} if w else None

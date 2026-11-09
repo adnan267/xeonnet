@@ -12,6 +12,7 @@ type Dash = {
   my_tasks: { id: number; title: string; project: number; project_title: string; status: string; due_date: string | null; priority: string }[];
   certificates?: number;
   remote?: { to_review: number; withdrawals: number; workers: number };
+  learning?: { fees_to_check: number; studying: number };
 };
 
 export default function Dashboard() {
@@ -38,6 +39,7 @@ export default function Dashboard() {
         </div>
       )}
       <div className="kpis">
+        {d?.learning && can("fees") && <Link href="/staff/learning/payments" className="kpi"><b style={{ color: d.learning.fees_to_check ? "var(--accent)" : undefined }}>{d.learning.fees_to_check}</b><span>Course fees to check · {d.learning.studying} studying</span></Link>}
         {d?.remote && can("remote") && <Link href="/staff/remote" className="kpi"><b style={{ color: d.remote.to_review ? "var(--accent)" : undefined }}>{d.remote.to_review}</b><span>Remote work to review · {d.remote.workers} workers</span></Link>}
         {d?.remote && can("payouts") && <Link href="/staff/remote/withdrawals" className="kpi"><b style={{ color: d.remote.withdrawals ? "var(--accent)" : undefined }}>{d.remote.withdrawals}</b><span>Withdrawals to pay</span></Link>}
         {d?.inbox && <Link href="/staff/inbox" className="kpi"><b>{d.inbox.unread}</b><span>Unread messages · {d.inbox.pending_reviews} reviews to approve</span></Link>}

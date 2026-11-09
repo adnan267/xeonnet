@@ -19,6 +19,7 @@ export default function SiteFooter() {
             <li><Link href="/brands">Our Brands</Link></li>
             <li><Link href="/team">Team</Link></li>
             <li><Link href="/reviews">Reviews</Link></li>
+            <li><Link href="/courses">Online Courses</Link></li>
             <li><Link href="/careers">Remote Jobs</Link></li>
             <li><Link href="/verify">Verify a Certificate</Link></li>
             <li><Link href="/login">Client / Staff Login</Link></li>

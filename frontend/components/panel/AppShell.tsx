@@ -9,7 +9,7 @@ import { api, ApiError } from "@/lib/api";
 
 export type Me = {
   id: number; email: string; name: string; first_name: string; last_name: string; role: string; phone: string; job_title: string;
-  is_client: boolean; is_remote?: boolean; client?: { id: number; name: string; company: string } | null;
+  is_client: boolean; is_remote?: boolean; is_student?: boolean; client?: { id: number; name: string; company: string } | null;
   worker?: { status: string; position: string } | null;
   modules?: Record<string, { read: boolean; write: boolean }>;
 };
@@ -25,12 +25,13 @@ export function useTitle(t: string) {
   useEffect(() => { set(t); document.title = `${t} | Xeon Net`; }, [t, set]);
 }
 
-const ROLE_LABEL: Record<string, string> = { admin: "Admin", sales: "Sales", accounts: "Accounts", hr: "HR", staff: "Team member", client: "Client", remote: "Remote worker" };
+const ROLE_LABEL: Record<string, string> = { admin: "Admin", sales: "Sales", accounts: "Accounts", hr: "HR", staff: "Team member", client: "Client", remote: "Remote worker", student: "Student" };
 
 /** Where each kind of user belongs after logging in. */
-export const homeFor = (m: { is_client: boolean; is_remote?: boolean }) => (m.is_client ? "/portal" : m.is_remote ? "/remote" : "/staff");
+export const homeFor = (m: { is_client: boolean; is_remote?: boolean; is_student?: boolean }) =>
+  m.is_client ? "/portal" : m.is_remote ? "/remote" : m.is_student ? "/learn" : "/staff";
 
-export default function AppShell({ area, nav, children }: { area: "staff" | "portal" | "remote"; nav: NavItem[]; children: React.ReactNode }) {
+export default function AppShell({ area, nav, children }: { area: "staff" | "portal" | "remote" | "learn"; nav: NavItem[]; children: React.ReactNode }) {
   const router = useRouter();
   const path = usePathname();
   const [me, setMe] = useState<Me | null>(null);
@@ -71,7 +72,7 @@ export default function AppShell({ area, nav, children }: { area: "staff" | "por
             <div className="grow" />
             <div className="who">
               <b>{me.name}</b>
-              <span className="muted small">{me.is_client ? me.client?.company || me.client?.name : me.is_remote ? `Remote worker${me.worker?.position ? " · " + me.worker.position : ""}` : `${ROLE_LABEL[me.role] || me.role}${me.job_title ? " · " + me.job_title : ""}`}</span>
+              <span className="muted small">{me.is_client ? me.client?.company || me.client?.name : me.is_remote ? `Remote worker${me.worker?.position ? " · " + me.worker.position : ""}` : me.is_student ? "Student" : `${ROLE_LABEL[me.role] || me.role}${me.job_title ? " · " + me.job_title : ""}`}</span>
               <div className="row" style={{ ["--gap" as string]: "8px" }}>
                 <Link href={`/${area}/profile`} className="btn btn-ghost btn-xs">Profile</Link>
                 <button className="btn btn-ghost btn-xs" onClick={logout}><LogOut size={14} /> Logout</button>

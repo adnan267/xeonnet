@@ -6,6 +6,7 @@ from rest_framework.routers import DefaultRouter
 from accounts import api as auth
 from notify.views import cron_daily
 from office import api
+from learn import api as learn
 from remote import api as remote
 
 router = DefaultRouter(trailing_slash=False)
@@ -24,6 +25,11 @@ router.register("remote/tasks", remote.TaskViewSet, basename="remote-tasks")
 router.register("remote/submissions", remote.SubmissionViewSet, basename="remote-submissions")
 router.register("remote/workers", remote.WorkerViewSet, basename="remote-workers")
 router.register("remote/withdrawals", remote.WithdrawalViewSet, basename="remote-withdrawals")
+router.register("learn/courses", learn.CourseViewSet, basename="learn-courses")
+router.register("learn/lessons", learn.LessonViewSet, basename="learn-lessons")
+router.register("learn/questions", learn.QuestionViewSet, basename="learn-questions")
+router.register("learn/enrollments", learn.EnrollmentViewSet, basename="learn-enrollments")
+router.register("learn/payments", learn.FeePaymentViewSet, basename="learn-payments")
 
 admin.site.site_header = "Xeon Net — database admin"
 
@@ -89,6 +95,19 @@ urlpatterns = [
     path("api/remote/profile", remote.WorkerProfile.as_view()),
     path("api/staff/remote/overview", remote.RemoteOverview.as_view()),
     path("api/staff/remote/settings", remote.RemoteSettingsView.as_view()),
+    # online learning: website + student panel
+    path("api/public/courses", learn.courses),
+    path("api/public/courses/<slug:slug>", learn.course_detail),
+    path("api/public/courses/<slug:slug>/enroll", learn.enroll),
+    path("api/learn/home", learn.StudentHome.as_view()),
+    path("api/learn/courses/<int:pk>", learn.StudentCourse.as_view()),
+    path("api/learn/courses/<int:pk>/pay", learn.StudentPay.as_view()),
+    path("api/learn/courses/<int:pk>/lessons/<int:lesson_id>", learn.StudentLesson.as_view()),
+    path("api/learn/courses/<int:pk>/test", learn.StudentTest.as_view()),
+    path("api/learn/attempts/<int:attempt_id>", learn.StudentAttempt.as_view()),
+    path("api/learn/certificates", learn.StudentCertificates.as_view()),
+    path("api/staff/learn/overview", learn.LearnOverview.as_view()),
+    path("api/staff/learn/settings", learn.LearnSettingsView.as_view()),
     # staff panel
     path("api/staff/dashboard", api.DashboardView.as_view()),
     path("api/staff/people", api.PeopleView.as_view()),

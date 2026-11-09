@@ -11,12 +11,13 @@ export default function StaffLayout() {
   if (status === "loading") return <Screen><Loading /></Screen>;
   if (status !== "in" || !user) return <Redirect href="/login" />;
   if (user.is_client) return <Redirect href="/portal" />;
-  if (user.role === "remote") {
+  if (user.role === "remote" || user.role === "student") {
+    const student = user.role === "student";
     return (
       <Screen>
-        <T v="h2">Remote work</T>
-        <T muted>Your tasks, wallet and withdrawals are on the website for now. They are coming to the app soon.</T>
-        <Button title="Open my remote dashboard" icon="open-outline" onPress={() => Linking.openURL(`${API_URL}/remote`)} />
+        <T v="h2">{student ? "My courses" : "Remote work"}</T>
+        <T muted>{student ? "Your lessons, tests and certificates" : "Your tasks, wallet and withdrawals"} are on the website for now. They are coming to the app soon.</T>
+        <Button title={student ? "Open my courses" : "Open my remote dashboard"} icon="open-outline" onPress={() => Linking.openURL(`${API_URL}/${student ? "learn" : "remote"}`)} />
       </Screen>
     );
   }

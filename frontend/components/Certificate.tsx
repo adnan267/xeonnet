@@ -10,6 +10,7 @@ export type CertData = {
 /** Xeon Net certificate, A4 landscape. Styles live in app/certificate.css. */
 export default function Certificate({ c }: { c: CertData }) {
   const intern = c.doc_type.startsWith("Internship");
+  const course = c.doc_type.startsWith("Course");
   const start = longDate(c.start_date), end = longDate(c.end_date);
   return (
     <div className="xc-page">
@@ -27,12 +28,19 @@ export default function Certificate({ c }: { c: CertData }) {
       </div>
       <div className="xc-main">
         <img className="xc-logo" src="/img/logo-full-light.png" alt="Xeon Net — Full Stack Development & Digital Solution" />
-        <p className="xc-title">{intern ? "INTERNSHIP" : c.doc_type.toUpperCase()}</p>
-        <p className="xc-sub">{intern ? "COMPLETION CERTIFICATE" : "XEON NET"}</p>
+        <p className="xc-title">{intern ? "INTERNSHIP" : course ? "COURSE" : c.doc_type.toUpperCase()}</p>
+        <p className="xc-sub">{intern || course ? "COMPLETION CERTIFICATE" : "XEON NET"}</p>
         <p className="xc-lead">This certificate is proudly presented to</p>
         <p className="xc-name">{c.holder_name}</p>
         <div className="xc-orn"><i /><b /><i /></div>
-        {intern ? (
+        {course ? (
+          <>
+            <p className="xc-body">In recognition of successfully completing the Xeon Net online course and passing its final assessment in</p>
+            <p className="xc-focus">{c.title}{c.title && c.duration && <em>•</em>}{c.duration}</p>
+            <p className="xc-period">{(start || end) ? <><span>Course Period</span>{start} – {end}</> : c.period}</p>
+            <p className="xc-close">The student demonstrated commitment, a strong willingness to learn and the knowledge required by the course.<br />We wish them continued success in their professional journey.</p>
+          </>
+        ) : intern ? (
           <>
             <p className="xc-body">In recognition of the successful completion of an internship with Xeon Net, with a focus on</p>
             <p className="xc-focus">{c.title}{c.title && c.duration && <em>•</em>}{c.duration}</p>

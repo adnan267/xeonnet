@@ -7,6 +7,7 @@ import logging
 import urllib.request
 
 from django.conf import settings
+from accounts.models import NON_STAFF_ROLES
 
 log = logging.getLogger("notify.push")
 EXPO_URL = "https://exp.host/--/api/v2/push/send"
@@ -55,7 +56,7 @@ def staff_with(module, exclude=None):
     """Active staff who can see a panel module (e.g. 'inbox')."""
     from django.contrib.auth import get_user_model
     from accounts.permissions import can
-    return [u for u in get_user_model().objects.filter(is_active=True).exclude(role__in=("client", "remote"))
+    return [u for u in get_user_model().objects.filter(is_active=True).exclude(role__in=NON_STAFF_ROLES)
             if can(u, module) and u != exclude]
 
 
