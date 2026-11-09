@@ -1,9 +1,10 @@
 "use client";
-import { Award, BookOpen, CheckCircle2, Clock, Lock, PlayCircle } from "lucide-react";
+import { Award, BookOpen, CheckCircle2, Clock, FileCheck2, Infinity as Forever, Lock, MessageCircle, PlayCircle, Smartphone } from "lucide-react";
+import { LEARN_FAQ } from "@/components/learn/faq";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { groupLessons, hours, KindIcon, LEVEL, rs, Video, type CourseDetail, type Lesson, type PayInfo } from "@/components/learn/shared";
+import { groupLessons, hours, KindIcon, LEVEL, rs, Video, type CourseCard, type CourseDetail, type Lesson, type PayInfo } from "@/components/learn/shared";
 import { api, ApiError } from "@/lib/api";
 
 type Detail = CourseDetail & { previews: Lesson[]; payment: PayInfo; my_enrollment?: { id: number; status: string } | null };
@@ -18,8 +19,10 @@ export default function CourseClient({ slug }: { slug: string }) {
   const [f, setF] = useState({ name: "", email: "", phone: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const [others, setOthers] = useState<CourseCard[]>([]);
 
   useEffect(() => {
+    api<CourseCard[]>("public/courses").then((all) => setOthers(all.filter((x) => x.slug !== slug))).catch(() => {});
     api<Detail>(`public/courses/${slug}`).then((d) => { setC(d); document.title = `${d.title} | Xeon Net`; }).catch((e) => setErr(e.status === 404 ? "Course not found." : e.message));
     api<Me>("auth/me").then(setMe).catch(() => setMe(null));
   }, [slug]);
@@ -90,6 +93,12 @@ export default function CourseClient({ slug }: { slug: string }) {
                 {preview.body && <p className="pre small">{preview.body}</p>}
               </div>
             )}
+            <div className="card card-pad row" style={{ ["--gap" as string]: "16px", flexWrap: "nowrap", alignItems: "flex-start" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/img/logo-mark.png" alt="" width={56} height={36} style={{ objectFit: "contain", flex: "none", marginTop: 4 }} />
+              <div><h3 className="h3" style={{ margin: 0 }}>Your instructors: the Xeon Net team</h3>
+                <p className="muted small" style={{ margin: "6px 0 0" }}>Lessons are prepared by the developers, designers and marketers who work on Xeon Net client projects, led by CEO Muhammad Adnan. Questions? Message us on WhatsApp and we will help.</p></div>
+            </div>
             {c.questions > 0 && <div className="card card-pad"><h3 className="h3" style={{ marginTop: 0 }}>Final test</h3>
               <p className="muted small" style={{ margin: 0 }}>{c.questions_per_test ? Math.min(c.questions_per_test, c.questions) : c.questions} multiple-choice questions · pass mark {c.pass_mark}% · up to {c.max_attempts} tries{c.time_limit ? ` · ${c.time_limit} minutes` : ""}. Pass to receive your certificate.</p></div>}
           </div>
@@ -97,6 +106,14 @@ export default function CourseClient({ slug }: { slug: string }) {
           <aside className="card card-pad stack" style={{ position: "sticky", top: 90 }}>
             <span className="muted small">Course fee</span>
             <b style={{ fontSize: 32 }}>{rs(c.price)}</b>
+            <ul className="includes">
+              <li><BookOpen size={17} />{c.lessons} lessons{c.minutes > 0 ? ` · ${hours(c.minutes)}` : ""}</li>
+              <li><FileCheck2 size={17} />Final test, marked instantly</li>
+              <li><Award size={17} />Verifiable certificate with QR code</li>
+              <li><Forever size={17} />No time limit to finish</li>
+              <li><Smartphone size={17} />Learn on phone or computer</li>
+              <li><MessageCircle size={17} />Help on WhatsApp</li>
+            </ul>
             {enrolled ? (
               <><p className="muted small" style={{ margin: 0 }}>You are enrolled in this course.</p><Link className="btn" href={`/learn/course/${enrolled.id}`}>Go to my course</Link></>
             ) : !c.payment.enroll_open ? <p className="note err">Enrolment is closed right now.</p> : me && !me.is_student ? (
@@ -117,6 +134,25 @@ export default function CourseClient({ slug }: { slug: string }) {
             {err && <p className="note err">{err}</p>}
             {Number(c.price) > 0 && <p className="muted small" style={{ margin: 0 }}>Pay by JazzCash, Easypaisa or bank transfer. The course opens as soon as we confirm your payment.</p>}
           </aside>
+        </div>
+      </section>
+      <section className="section-sm section-alt">
+        <div className="wrap hero-grid" style={{ alignItems: "start", gap: 48 }}>
+          <div>
+            <h2 className="h3">Questions</h2>
+            <div className="faq">{LEARN_FAQ.slice(0, 5).map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div>
+          </div>
+          {others.length > 0 && (
+            <div className="stack" style={{ ["--gap" as string]: "12px" }}>
+              <h2 className="h3">More courses</h2>
+              {[...others.filter((o) => o.category === c.category), ...others.filter((o) => o.category !== c.category)].slice(0, 4).map((o) => (
+                <Link key={o.slug} href={`/courses/${o.slug}`} className="card card-pad row between" style={{ padding: 16 }}>
+                  <span><b>{o.title}</b><br /><span className="muted small">{o.lessons} lessons{o.duration ? ` · ${o.duration}` : ""}</span></span>
+                  <b className="accent">{rs(o.price)}</b>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </>

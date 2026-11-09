@@ -419,3 +419,11 @@ button.lesson-row { width: 100%; text-align: left; cursor: pointer; color: inher
 }
 input[type="radio"] { width: 18px; height: 18px; flex: none; padding: 0; accent-color: var(--brand); box-shadow: none; }
 .q-opt span { flex: 1; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-size: 14px; cursor: pointer; color: var(--text); }
+.chip.on { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+.search-box { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 0 14px; background: var(--surface); min-width: 240px; }
+.search-box input { border: 0; background: transparent; padding: 10px 0; box-shadow: none !important; }
+.includes { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; font-size: 14.5px; }
+.includes li { display: flex; gap: 10px; align-items: center; }
+.includes svg { color: var(--accent); flex: none; }

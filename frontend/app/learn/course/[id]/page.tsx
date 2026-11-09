@@ -39,7 +39,7 @@ function PaySection({ data, reload }: { data: StudentCourse; reload: () => void 
     try { await api(`learn/courses/${e.id}/pay`, { body: f }); reload(); } catch (x) { setErr((x as Error).message); } finally { setBusy(false); }
   }
 
-  if (pending) return <div className="alert">We received your payment details ({pending.method_label}, {rs(pending.amount)}{pending.reference ? `, ID ${pending.reference}` : ""}) on {fdatetime(pending.created_at)}. The course opens as soon as we confirm it, usually the same day.</div>;
+  if (pending) return <div className="alert">We received your payment details ({pending.method_label}, {rs(pending.amount)}{pending.reference ? `, ID ${pending.reference}` : ""}) on {fdatetime(pending.created_at)}. The course opens as soon as we confirm it.</div>;
   return (
     <section className="panel stack">
       <h3 className="panel-title" style={{ margin: 0 }}>Pay the course fee: {rs(e.fee)}</h3>

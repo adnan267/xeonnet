@@ -30,7 +30,7 @@ def answer_all(paper, right=True):
 
 class Learning(TestCase):
     def setUp(self):
-        self.c = Course.objects.get(slug="social-media-marketing-basics")
+        self.c = Course.objects.get(slug="social-media-marketing")
         self.c.is_published, self.c.price = True, Decimal("5000")
         self.c.save()
         self.hr, self.hr_api = staff("hr")
@@ -46,9 +46,10 @@ class Learning(TestCase):
     def test_public_listing_hides_drafts_and_answers(self):
         Course.objects.create(title="Draft", is_published=False)
         titles = [x["title"] for x in APIClient().get("/api/public/courses").json()]
-        self.assertEqual(titles, [self.c.title])
+        self.assertNotIn("Draft", titles)
+        self.assertEqual(len(titles), 8)
         d = APIClient().get(f"/api/public/courses/{self.c.slug}").json()
-        self.assertEqual(len(d["syllabus"]), 4)
+        self.assertEqual(len(d["syllabus"]), 6)
         self.assertEqual(len(d["previews"]), 1)
         self.assertNotIn("correct", str(d))
 
@@ -72,13 +73,13 @@ class Learning(TestCase):
         p2 = s.post(f"/api/learn/courses/{eid}/pay", {"method": "bank", "reference": "BANK9"}, format="json").json()
         self.acc_api.post(f"/api/staff/learn/payments/{p2['id']}/approve", {}, format="json")
         course = s.get(f"/api/learn/courses/{eid}").json()
-        self.assertEqual((course["enrollment"]["status"], len(course["lessons"])), ("active", 4))
+        self.assertEqual((course["enrollment"]["status"], len(course["lessons"])), ("active", 6))
         # test locked until lessons are done
         self.assertEqual(s.post(f"/api/learn/courses/{eid}/test", {}, format="json").status_code, 400)
         for lid in lesson_ids:
             s.post(f"/api/learn/courses/{eid}/lessons/{lid}", {"done": True}, format="json")
         paper = s.post(f"/api/learn/courses/{eid}/test", {}, format="json").json()
-        self.assertEqual(len(paper["questions"]), 5)
+        self.assertEqual(len(paper["questions"]), 10)
         self.assertNotIn("correct", str(paper))
         self.assertEqual(s.post(f"/api/learn/courses/{eid}/test", {}, format="json").json()["attempt"], paper["attempt"])  # same open test
         # fail 3 times -> locked; staff gives one more; pass -> certificate
@@ -119,3 +120,14 @@ class Learning(TestCase):
         self.assertEqual(self.hr_api.post("/api/staff/learn/questions", {"course": c["id"], "text": "Q", "options": ["A", "B"], "correct": 1}, format="json").status_code, 201)
         self.assertEqual(self.hr_api.post("/api/staff/learn/lessons", {"course": c["id"], "title": "Intro", "video_url": "https://youtu.be/abc"}, format="json").status_code, 201)
         self.assertEqual(self.acc_api.post("/api/staff/learn/courses", {"title": "No"}, format="json").status_code, 403)
+
+
+class Catalogue(TestCase):
+    def test_every_course_is_complete_and_answers_valid(self):
+        for c in Course.objects.filter(is_published=True):
+            self.assertGreaterEqual(c.lessons.count(), 5, c.slug)
+            self.assertGreaterEqual(c.questions.count(), c.questions_per_test or 1, c.slug)
+            for q in c.questions.all():
+                self.assertLess(q.correct, len(q.options))
+                self.assertEqual(len(set(q.options)), len(q.options), q.text)
+        self.assertFalse(Course.objects.filter(slug="social-media-marketing-basics").exists())
